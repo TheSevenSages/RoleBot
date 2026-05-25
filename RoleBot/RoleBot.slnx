@@ -1,3 +1,12 @@
 ﻿<Solution>
+  <Project Path="Unity.InferenceEngine.Microsoft.Msagl.csproj" />
+  <Project Path="Unity.InferenceEngine.Editor.Visualizer.csproj" />
+  <Project Path="Unity.InferenceEngine.csproj" />
+  <Project Path="Unity.InferenceEngine.Tokenization.csproj" />
+  <Project Path="Unity.InferenceEngine.Editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="Unity.InferenceEngine.MacBLAS.csproj" />
+  <Project Path="Unity.InferenceEngine.ONNX.Editor.csproj" />
+  <Project Path="Unity.InferenceEngine.iOSBLAS.csproj" />
 </Solution>
