@@ -68,13 +68,15 @@ namespace RoleBot.TTS
             using var result = m_Worker.PeekOutput() as Tensor<float>;
             using var output = await result.ReadbackAndCloneAsync();
 
+            var processedOutput = KokoroOutputProcessor.Apply2NotchFiltering(output);
+
             voice?.Dispose();
 
             // Save the output
-            var arr = output.DownloadToArray();
-            WavUtils.WriteFloatWav(k_OutputWavPath + voiceData.name + ".wav", output.DownloadToArray());
-            Assert.IsNotNull(output, "Failed to get output from Kokoro model.");
-            var audioData = output.DownloadToArray();
+            var arr = processedOutput.DownloadToArray();
+            WavUtils.WriteFloatWav(k_OutputWavPath + voiceData.name + "_process" + ".wav", processedOutput.DownloadToArray());
+            Assert.IsNotNull(processedOutput, "Failed to get output from Kokoro model.");
+            var audioData = processedOutput.DownloadToArray();
             Assert.IsTrue(audioData.Length > 0, "Audio output should not be empty.");
             Debug.Log($"Generated audio with {audioData.Length} sample from predefined tokens.");
         }
