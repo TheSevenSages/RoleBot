@@ -67,5 +67,8 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "RoleBot.slnx"
+    "dotnet.defaultSolution": "RoleBot.slnx",
+    "cSpell.words": [
+        "kokoro"
+    ]
 }

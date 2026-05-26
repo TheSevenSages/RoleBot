@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Unity.InferenceEngine.Samples.TTS.Utils
+namespace RoleBot.TTS.Utils
 {
     public static class WavUtils
     {

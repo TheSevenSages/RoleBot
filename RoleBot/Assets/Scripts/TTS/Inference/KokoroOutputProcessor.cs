@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Unity.InferenceEngine;
 
-namespace Unity.InferenceEngine.Samples.TTS.Inference
+namespace RoleBot.TTS.Inference
 {
     // Class copied from Unity Sentis TTS Demo on Github: https://github.com/Unity-Technologies/sentis-samples/tree/main
     public static class KokoroOutputProcessor

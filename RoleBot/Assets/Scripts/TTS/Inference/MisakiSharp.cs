@@ -6,8 +6,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace Unity.InferenceEngine.Samples.TTS.Inference
+namespace RoleBot.TTS.Inference
 {
+    // Class copied from Unity Sentis TTS Demo on Github: https://github.com/Unity-Technologies/sentis-samples/tree/main
     public class MToken
     {
         public string Text { get; set; } = "";
