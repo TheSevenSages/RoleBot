@@ -1992,7 +1992,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1057922597}
   - component: {fileID: 1057922598}
-  - component: {fileID: 1057922596}
   - component: {fileID: 1057922599}
   m_Layer: 0
   m_Name: TTSEngine
@@ -2001,20 +2000,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1057922596
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1057922595}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 722bc3c04bdbb5e479c3c97b6ea33620, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SentisTest
-  modelAsset: {fileID: 5022602860645237092, guid: d3b741e0a4ad31a4c90e2de1fa806456, type: 3}
-  m_BackendType: 512
 --- !u!4 &1057922597
 Transform:
   m_ObjectHideFlags: 0
@@ -2042,6 +2027,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f522216431bfbe942b27768e2332ca62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoleBot.TTS.TTSEngine
+  backendType: 512
+  model: {fileID: 5022602860645237092, guid: 63f6d8aa90d37354b938872c3522c44a, type: 3}
 --- !u!82 &1057922599
 AudioSource:
   m_ObjectHideFlags: 0

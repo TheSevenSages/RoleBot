@@ -16,7 +16,7 @@ namespace RoleBot.TTS.Demos
 
         void Start()
         {
-            var list = VoiceUtils.GetVoicesList();
+            var list = ttsEngine.GetVoicesList();
             voiceChoice.AddOptions(list.ToList());
 
             button.onClick.AddListener(TTSSpeak);
@@ -24,7 +24,7 @@ namespace RoleBot.TTS.Demos
 
         private void TTSSpeak()
         {
-            var voice = VoiceUtils.GetVoice(voiceChoice.captionText.text);
+            var voice = ttsEngine.GetVoice(voiceChoice.captionText.text);
             ttsEngine.Speak(inputField.text, voice);
         }
 

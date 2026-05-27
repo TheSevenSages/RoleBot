@@ -9,12 +9,12 @@ using System.Linq;
 
 namespace RoleBot.TTS.Utils
 {
-    public static class VoiceUtils
+    public class VoiceUtils : IDisposable
     {
-        private static Dictionary<string, Voice> loadedVoices; // Name to object
-        private static Dictionary<string, string> voicesList; // Name to path
+        private Dictionary<string, Voice> loadedVoices; // Name to object
+        private Dictionary<string, string> voicesList; // Name to path
 
-        static VoiceUtils()
+        public VoiceUtils()
         {
             loadedVoices = new Dictionary<string, Voice>();
             voicesList = new Dictionary<string, string>();
@@ -30,11 +30,19 @@ namespace RoleBot.TTS.Utils
                 Debug.LogError($"Failed to init VoiceUtils \"VoicesList\" \n {ex.Message} \n {ex.StackTrace}");
             }
         }
-
-        // TODO: Dispose of all the voices
+        
+        // Dispose of all the voices
+        public void Dispose()
+        {
+            foreach (var pair in loadedVoices)
+            {
+                pair.Value?.Dispose();
+            }
+            loadedVoices.Clear();
+        }
 
         /// <returns>A list with the names of all the available voices.</returns>
-        public static string[] GetVoicesList()
+        public string[] GetVoicesList()
         {
             return voicesList.Keys.ToArray<string>();
         }
@@ -44,7 +52,7 @@ namespace RoleBot.TTS.Utils
         /// </summary>
         /// <param name="name">The name of the voice</param>
         /// <returns>The voice if it exists, null otherwise</returns>
-        public static Voice GetVoice(string name)
+        public Voice GetVoice(string name)
         {
             if (loadedVoices.ContainsKey(name))
                 return loadedVoices[name];

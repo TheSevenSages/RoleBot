@@ -9,20 +9,23 @@ using RoleBot.TTS.Utils;
 
 namespace RoleBot.TTS.Inference
 {
-    public class KokoroHandler : MonoBehaviour
+    public class KokoroHandler : IDisposable
     {
-        public ModelAsset modelAsset;
-        public BackendType m_BackendType = BackendType.GPUCompute;
+        public VoiceUtils voiceUtils { get; private set; }
+        private ModelAsset m_modelAsset;
+        private BackendType m_BackendType;
 
         private Model m_Model;
         private Worker m_Worker;
         // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Awake()
+        public KokoroHandler(BackendType backendType, ModelAsset modelAsset)
         {
+            m_BackendType = backendType;
+            m_modelAsset = modelAsset;
             m_Model = ModelLoader.Load(modelAsset);
             m_Worker = new Worker(m_Model, m_BackendType);
 
-            // _ = GenerateSpeech("Hello world!", 1.0f, VoiceUtils.GetVoice(AssetDatabase.GetAssetPath(voiceData)));
+            voiceUtils = new VoiceUtils();
         }
 
         public async Task GenerateSpeech(string text, float speed, Voice voice, Action<float[]> callback)
@@ -34,26 +37,21 @@ namespace RoleBot.TTS.Inference
             Array.Copy(inputIds, 0, paddedInputIds, 1, inputIds.Length);
             paddedInputIds[^1] = 0;
 
-            Tensor<int> inputIdsTensor = new Tensor<int>(new TensorShape(1, paddedInputIds.Length), paddedInputIds);
-            Tensor<float> speedTensor = new Tensor<float>(new TensorShape(1), new[] { speed });
-            var voiceTensor = await GetVoiceVector(inputIdsTensor, voice.Tensor);
+            using Tensor<int> inputIdsTensor = new Tensor<int>(new TensorShape(1, paddedInputIds.Length), paddedInputIds);
+            using Tensor<float> speedTensor = new Tensor<float>(new TensorShape(1), new[] { speed });
+            using Tensor<float> voiceTensor = await GetVoiceVector(inputIdsTensor, voice.Tensor);
 
             LoadModelIfMissing();
 
             m_Worker.Schedule(inputIdsTensor, voiceTensor, speedTensor);
-            using var result = m_Worker.PeekOutput() as Tensor<float>;
-            using var output = await result.ReadbackAndCloneAsync();
+            using Tensor<float> result = m_Worker.PeekOutput() as Tensor<float>;
+            using Tensor<float> output = await result.ReadbackAndCloneAsync();
 
-            var processedOutput = KokoroOutputProcessor.Apply2NotchFiltering(output);
+            using Tensor<float> processedOutput = KokoroOutputProcessor.Apply2NotchFiltering(output);
 
             // Save the output
             var arr = processedOutput.DownloadToArray();
             callback.Invoke(arr);
-            // WavUtils.WriteFloatWav(k_OutputWavPath + voice.Name + "_process2" + ".wav", processedOutput.DownloadToArray());
-            // Assert.IsNotNull(processedOutput, "Failed to get output from Kokoro model.");
-            // var audioData = processedOutput.DownloadToArray();
-            // Assert.IsTrue(audioData.Length > 0, "Audio output should not be empty.");
-            // Debug.Log($"Generated audio with {audioData.Length} sample from predefined tokens.");
         }
 
         private void LoadModelIfMissing()
@@ -61,7 +59,7 @@ namespace RoleBot.TTS.Inference
             if (m_Model != null)
                 return;
             
-            m_Model = ModelLoader.Load(modelAsset);
+            m_Model = ModelLoader.Load(m_modelAsset);
             m_Worker = new Worker(m_Model, m_BackendType);
         }
 
@@ -79,10 +77,12 @@ namespace RoleBot.TTS.Inference
             return await result.ReadbackAndCloneAsync();
         }
 
-        void OnDestroy()
+        public void Dispose()
         {
             m_Worker?.Dispose();
             m_Worker = null;
+
+            voiceUtils?.Dispose();
         }
     }   
 }

@@ -1,18 +1,21 @@
 // Written by Jacob Robinson, May 2026
-// Last Updated: 5.25.26
+// Last Updated: 5.26.26
 
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using RoleBot.TTS.Inference;
 using RoleBot.TTS.Utils;
+using Unity.InferenceEngine;
 
 namespace RoleBot.TTS
 {
-    [RequireComponent(typeof(AudioSource), typeof(KokoroHandler))]
+    [RequireComponent(typeof(AudioSource))]
     public class TTSEngine : MonoBehaviour
     {
-        // Inference
+        [Header("Inference")]
+        public BackendType backendType;
+        public ModelAsset model;
         private KokoroHandler kokoro = null;
 
         // Audio
@@ -30,7 +33,7 @@ namespace RoleBot.TTS
             audioSource.loop = true;
             audioSource.Play();
 
-            kokoro = GetComponent<KokoroHandler>();
+            kokoro = new KokoroHandler(backendType, model);
         }
 
         /// <summary>
@@ -84,6 +87,27 @@ namespace RoleBot.TTS
                 }
                 data[i] = currentSamples[currentSamplePos++];
             }
+        }
+
+        /// <returns>All of the valid voice names</returns>
+        public string[] GetVoicesList()
+        {
+            return kokoro.voiceUtils.GetVoicesList();
+        }
+
+        /// <summary>
+        /// Returns the voice with the given name, if it exists.
+        /// </summary>
+        /// <param name="name">The name of the voice</param>
+        /// <returns>The voice if it exists, null otherwise</returns>
+        public Voice GetVoice(string voiceName)
+        {
+            return kokoro.voiceUtils.GetVoice(voiceName);
+        }
+
+        void OnDestroy()
+        {
+            kokoro.Dispose();
         }
     }
 }
