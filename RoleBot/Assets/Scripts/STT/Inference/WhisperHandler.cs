@@ -14,7 +14,7 @@ namespace RoleBot.STT.Inference
         Worker decoder1, decoder2, encoder, spectrogram;
         Worker argmax;
 
-        public AudioClip audioClip;
+        // public AudioClip audioClip;
 
         // This is how many tokens you want. It can be adjusted.
         const int maxTokens = 100;
@@ -30,7 +30,7 @@ namespace RoleBot.STT.Inference
         const int NO_TIME_STAMPS = 50363;
         const int START_TIME = 50364;
 
-        int numSamples;
+        // int numSamples;
         string[] tokens;
 
         int tokenCount = 0;
@@ -51,17 +51,18 @@ namespace RoleBot.STT.Inference
         private ModelAsset audioEncoder;
         private ModelAsset logMelSpectro;
 
-        public WhisperHandler(BackendType backendType, ModelAsset decoder1, ModelAsset decoder2, ModelAsset encoder, ModelAsset spectro)
+        public WhisperHandler(BackendType backendType, ModelAsset decoder1, ModelAsset decoder2, ModelAsset encoder, ModelAsset spectro, TextAsset vocab)
         {
             audioDecoder1 = decoder1;
             audioDecoder2 = decoder2;
             audioEncoder = encoder;
             logMelSpectro = spectro;
+            vocabAsset = vocab;
             
-            _ = Init(backendType);
+            Init(backendType);
         }
 
-        private async Task Init(BackendType backendType)
+        private void Init(BackendType backendType)
         {
             SetupWhiteSpaceShifts();
             GetTokens();
@@ -77,7 +78,11 @@ namespace RoleBot.STT.Inference
 
             encoder = new Worker(ModelLoader.Load(audioEncoder), backendType);
             spectrogram = new Worker(ModelLoader.Load(logMelSpectro), backendType);
+        }
 
+        public void Transcribe(float[] samples, bool mono = false) { _ = _Transcribe(samples, mono); }
+        private async Task _Transcribe(float[] samples, bool mono = false)
+        {
             outputTokens = new NativeArray<int>(maxTokens, Allocator.Persistent);
 
             outputTokens[0] = START_OF_TRANSCRIPT;
@@ -86,7 +91,7 @@ namespace RoleBot.STT.Inference
             //outputTokens[3] = NO_TIME_STAMPS;// START_TIME;//
             tokenCount = 3;
 
-            LoadAudio();
+            LoadAudio(samples, mono);
             EncodeAudio();
             transcribe = true;
 
@@ -110,31 +115,38 @@ namespace RoleBot.STT.Inference
         Tensor<int> tokensTensor;
         Tensor<float> audioInput;
 
-        void LoadAudio()
+        void LoadAudio(float[] samples, bool mono = false)
         {
-            numSamples = audioClip.samples;
+            int numSamples = samples.Length;
             var data = new float[maxSamples];
 
-            // Handle stereo to mono conversion
-            if (audioClip.channels == 2)
-            {
-                var stereoData = new float[numSamples * 2];
-                audioClip.GetData(stereoData, 0);
+            // Pad the rest of the array with 0s because I don't trust 0-init to be true on all hardware...
 
-                int monoSamples = Mathf.Min(numSamples, maxSamples);
-                for (int i = 0; i < monoSamples; i++)
-                {
-                    data[i] = (stereoData[i * 2] + stereoData[i * 2 + 1]) / 2f;
-                }
+            // Handle stereo to mono conversion
+            if (!mono)
+            {
+                Debug.Log("TODO: Handle stereo audio");
+                // var stereoData = new float[numSamples * 2];
+                // audioClip.GetData(stereoData, 0);
+
+                // int monoSamples = Mathf.Min(numSamples, maxSamples);
+                // for (int i = 0; i < monoSamples; i++)
+                // {
+                //     data[i] = (stereoData[i * 2] + stereoData[i * 2 + 1]) / 2f;
+                // }
             }
             else
             {
                 numSamples = Mathf.Min(numSamples, maxSamples);
-                audioClip.GetData(data, 0);
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (i < numSamples)
+                        data[i] = samples[i];
+                    else
+                        data[i] = 0;                    
+                }
             }
-
-            numSamples = maxSamples;
-            audioInput = new Tensor<float>(new TensorShape(1, numSamples), data);
+            audioInput = new Tensor<float>(new TensorShape(1, maxSamples), data);
         }
 
         void EncodeAudio()
@@ -221,7 +233,7 @@ namespace RoleBot.STT.Inference
         }
 
         // Tokenizer
-        public TextAsset vocabAsset;
+        private TextAsset vocabAsset;
         void GetTokens()
         {
             var vocab = JsonConvert.DeserializeObject<Dictionary<string, int>>(vocabAsset.text);
@@ -259,6 +271,11 @@ namespace RoleBot.STT.Inference
         bool IsWhiteSpace(char c)
         {
             return !(('!' <= c && c <= '~') || ('�' <= c && c <= '�') || ('�' <= c && c <= '�'));
+        }
+
+        public void ClearOutput()
+        {
+            outputString = "";
         }
 
         public void Dispose()

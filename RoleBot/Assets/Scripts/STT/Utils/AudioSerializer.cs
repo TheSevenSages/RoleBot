@@ -97,19 +97,19 @@ namespace RoleBot.STT.Utils
                 mono[i] = sum / channels;
             }
 
-            // // Resample to 24kHz via linear interpolation
-            // float ratio = (float)deviceRate / targetSampleRate;
-            // int targetLength = Mathf.RoundToInt(framesAvailable / ratio);
-            // float[] resampled = new float[targetLength];
-            // for (int i = 0; i < targetLength; i++)
-            // {
-            //     float srcF = i * ratio;
-            //     int srcI = (int)srcF;
-            //     float t = srcF - srcI;
-            //     resampled[i] = srcI + 1 < mono.Length
-            //         ? Mathf.Lerp(mono[srcI], mono[srcI + 1], t)
-            //         : mono[Mathf.Min(srcI, mono.Length - 1)];
-            // }
+            // Resample to target rate via linear interpolation
+            float ratio = (float)deviceRate / targetSampleRate;
+            int targetLength = Mathf.RoundToInt(framesAvailable / ratio);
+            float[] resampled = new float[targetLength];
+            for (int i = 0; i < targetLength; i++)
+            {
+                float srcF = i * ratio;
+                int srcI = (int)srcF;
+                float t = srcF - srcI;
+                resampled[i] = srcI + 1 < mono.Length
+                    ? Mathf.Lerp(mono[srcI], mono[srcI + 1], t)
+                    : mono[Mathf.Min(srcI, mono.Length - 1)];
+            }
 
             // // Convert float [-1,1] to PCM16 little-endian
             // byte[] pcm = new byte[resampled.Length * 2];
@@ -120,7 +120,7 @@ namespace RoleBot.STT.Utils
             //     pcm[i * 2 + 1] = (byte)((s >> 8) & 0xFF);
             // }
 
-            return mono;
+            return resampled;
         }
 
         // /// <summary>
