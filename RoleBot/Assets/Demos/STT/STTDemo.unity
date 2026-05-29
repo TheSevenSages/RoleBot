@@ -1354,15 +1354,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1057922595}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e973b45ce32c666469c5abe377f2b003, type: 3}
+  m_Script: {fileID: 11500000, guid: 6bc228b1815821742a82f5f6fb11ff38, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RunWhisper
-  audioClip: {fileID: 8300000, guid: 21b0a6c6ca1efb84ba933e276b40011b, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::STTEngine
+  backendType: 512
   audioDecoder1: {fileID: 5022602860645237092, guid: 55f9c053088c7274ab8fffed0daba76b, type: 3}
   audioDecoder2: {fileID: 5022602860645237092, guid: a36dbddea936d32428d351e2855d1abe, type: 3}
   audioEncoder: {fileID: 5022602860645237092, guid: 31872aeaaddc9a5488d0ecb62e3fbbb3, type: 3}
   logMelSpectro: {fileID: 5022602860645237092, guid: 6a735971813ec1d49851cb5d77908dc5, type: 3}
-  vocabAsset: {fileID: 4900000, guid: 0214045d776050f4c9532a0a9ecf4f16, type: 3}
 --- !u!1 &1354484167
 GameObject:
   m_ObjectHideFlags: 0
@@ -1817,16 +1816,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1726839862}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4496535c6621854c8b7c16615f5a04e, type: 3}
+  m_Script: {fileID: 11500000, guid: a013ae0d6ebc5d048a6b2472e7b1d35e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RoleBot.Chat.Demos.ChatbotDemo
-  chatEngine: {fileID: 0}
-  inputField: {fileID: 813277153}
-  button: {fileID: 1057370710}
-  scrollRect: {fileID: 740058584}
-  ScrollContent: {fileID: 1550228314}
-  AIMsgPrefab: {fileID: 4467126532154681586, guid: c4009e312d9f97945a3adfa184698297, type: 3}
-  USRMsgPrefab: {fileID: 4467126532154681586, guid: 5fc9cfa55df619241b7ad51ab67b0193, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::STTDemo
 --- !u!1 &2021062818
 GameObject:
   m_ObjectHideFlags: 0

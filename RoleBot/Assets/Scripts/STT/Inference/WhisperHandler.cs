@@ -4,10 +4,12 @@ using Unity.InferenceEngine;
 using System.Text;
 using Unity.Collections;
 using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
 
 namespace RoleBot.STT.Inference
 {
-    public class WhisperHandler : MonoBehaviour
+    public class WhisperHandler : IDisposable
     {
         Worker decoder1, decoder2, encoder, spectrogram;
         Worker argmax;
@@ -45,26 +47,36 @@ namespace RoleBot.STT.Inference
         // Maximum size of audioClip (30s at 16kHz)
         const int maxSamples = 30 * 16000;
 
-        public ModelAsset audioDecoder1, audioDecoder2;
-        public ModelAsset audioEncoder;
-        public ModelAsset logMelSpectro;
+        private ModelAsset audioDecoder1, audioDecoder2;
+        private ModelAsset audioEncoder;
+        private ModelAsset logMelSpectro;
 
-        public async void Start()
+        public WhisperHandler(BackendType backendType, ModelAsset decoder1, ModelAsset decoder2, ModelAsset encoder, ModelAsset spectro)
+        {
+            audioDecoder1 = decoder1;
+            audioDecoder2 = decoder2;
+            audioEncoder = encoder;
+            logMelSpectro = spectro;
+            
+            _ = Init(backendType);
+        }
+
+        private async Task Init(BackendType backendType)
         {
             SetupWhiteSpaceShifts();
             GetTokens();
 
-            decoder1 = new Worker(ModelLoader.Load(audioDecoder1), BackendType.CPU);
-            decoder2 = new Worker(ModelLoader.Load(audioDecoder2), BackendType.CPU);
+            decoder1 = new Worker(ModelLoader.Load(audioDecoder1), backendType);
+            decoder2 = new Worker(ModelLoader.Load(audioDecoder2), backendType);
 
             FunctionalGraph graph = new FunctionalGraph();
             var input = graph.AddInput(DataType.Float, new DynamicTensorShape(1, 1, 51865));
             var amax = Functional.ArgMax(input, -1, false);
             var selectTokenModel = graph.Compile(amax);
-            argmax = new Worker(selectTokenModel, BackendType.CPU);
+            argmax = new Worker(selectTokenModel, backendType);
 
-            encoder = new Worker(ModelLoader.Load(audioEncoder), BackendType.CPU);
-            spectrogram = new Worker(ModelLoader.Load(logMelSpectro), BackendType.CPU);
+            encoder = new Worker(ModelLoader.Load(audioEncoder), backendType);
+            spectrogram = new Worker(ModelLoader.Load(logMelSpectro), backendType);
 
             outputTokens = new NativeArray<int>(maxTokens, Allocator.Persistent);
 
@@ -249,16 +261,16 @@ namespace RoleBot.STT.Inference
             return !(('!' <= c && c <= '~') || ('�' <= c && c <= '�') || ('�' <= c && c <= '�'));
         }
 
-        private void OnDestroy()
+        public void Dispose()
         {
-            decoder1.Dispose();
-            decoder2.Dispose();
-            encoder.Dispose();
-            spectrogram.Dispose();
-            argmax.Dispose();
-            audioInput.Dispose();
-            lastTokenTensor.Dispose();
-            tokensTensor.Dispose();
+            decoder1?.Dispose();
+            decoder2?.Dispose();
+            encoder?.Dispose();
+            spectrogram?.Dispose();
+            argmax?.Dispose();
+            audioInput?.Dispose();
+            lastTokenTensor?.Dispose();
+            tokensTensor?.Dispose();
         }
     }
 }
