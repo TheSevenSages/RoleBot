@@ -31,8 +31,7 @@ namespace RoleBot.STT
         public float speechBufferTime = 3.0f;
 
         [Header("Audio")]
-        [SerializeField]
-        private AudioSource Echo;
+        [SerializeField] private AudioSource Echo;
 
         [Header("Events")]
         public UnityEvent<string> onTranscriptionUpdated;
@@ -41,6 +40,7 @@ namespace RoleBot.STT
         private Queue<float[]> sampleQueue = new Queue<float[]>();
         private float lastSpeechTime = 0.0f;
 
+        private string outputString = "";
 
         private WhisperHandler whisper;
         private AudioSerializer serializer; 
@@ -68,7 +68,26 @@ namespace RoleBot.STT
         public void MicOff()
         {
             serializer.EndMicrophoneCapture();
-            onTranscriptionCompleted.Invoke(whisper.ClearOutput());
+            CompleteTranscription();
+        }
+
+        /// <summary>
+        /// Updates the in-progress transcription with the given string, then invokes "onTranscriptionUpdated".
+        /// </summary>
+        /// <param name="s">The string to add to the end of the ongoing transcription.</param>
+        void UpdateTranscription(string s)
+        {
+            outputString += s;
+            onTranscriptionUpdated.Invoke(outputString);
+        }
+
+        /// <summary>
+        /// Invokes "onTranscriptionCompleted", then resets the transcription.
+        /// </summary>
+        void CompleteTranscription()
+        {
+            onTranscriptionCompleted.Invoke(outputString);
+            outputString = "";
         }
 
         /// <summary>
@@ -79,9 +98,7 @@ namespace RoleBot.STT
         {
             if (!useVAD)
             {
-                whisper.Transcribe((string output) => {
-                    onTranscriptionUpdated.Invoke(output);
-                }, samples, true);
+                whisper.Transcribe(UpdateTranscription, samples, true);
             }
             else
             {
@@ -94,12 +111,7 @@ namespace RoleBot.STT
                 else
                 {
                     Debug.Log("NOT SPEAKING");
-                    if (Time.time - lastSpeechTime > speechBufferTime)
-                    {
-                        onTranscriptionCompleted.Invoke(whisper.ClearOutput());
-                    }
-
-                    if (sampleQueue.Count >= 3)
+                    if (sampleQueue.Count >= 3 )
                     {
                         lock (sampleQueue)
                         {
@@ -123,10 +135,12 @@ namespace RoleBot.STT
                                 Echo.Play();
                             }
 
-                            whisper.Transcribe((string output) => {
-                                onTranscriptionUpdated.Invoke(output);
-                            }, allSamplesArr, true);
+                            whisper.Transcribe(UpdateTranscription, allSamplesArr, true);
                         }
+                    }
+                    else if (Time.time - lastSpeechTime > speechBufferTime)
+                    {
+                        CompleteTranscription();
                     }
 
                     // If speech has recently been detected we still want to record the samples in case the VAD was wrong for this "frame"

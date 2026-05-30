@@ -14,8 +14,6 @@ namespace RoleBot.STT.Inference
         Worker decoder1, decoder2, encoder, spectrogram;
         Worker argmax;
 
-        // public AudioClip audioClip;
-
         // This is how many tokens you want. It can be adjusted.
         const int maxTokens = 100;
 
@@ -33,16 +31,8 @@ namespace RoleBot.STT.Inference
         // int numSamples;
         string[] tokens;
 
-        int tokenCount = 0;
-        NativeArray<int> outputTokens;
-
         // Used for special character decoding
         int[] whiteSpaceCharacters = new int[256];
-
-        Tensor<float> encodedAudio;
-
-        bool transcribe = false;
-        string outputString = "";
 
         // Maximum size of audioClip (30s at 16kHz)
         const int maxSamples = 30 * 16000;
@@ -83,40 +73,55 @@ namespace RoleBot.STT.Inference
         public void Transcribe(Action<string> callback, float[] samples, bool mono = false) { _ = _Transcribe(callback, samples, mono); }
         private async Task _Transcribe(Action<string> callback, float[] samples, bool mono = false)
         {
-            outputTokens = new NativeArray<int>(maxTokens, Allocator.Persistent);
+            var outputTokens = new NativeArray<int>(maxTokens, Allocator.Persistent);
 
             outputTokens[0] = START_OF_TRANSCRIPT;
             outputTokens[1] = ENGLISH;// GERMAN;//FRENCH;//
             outputTokens[2] = TRANSCRIBE; //TRANSLATE;//
             //outputTokens[3] = NO_TIME_STAMPS;// START_TIME;//
-            tokenCount = 3;
+            int tokenCount = 3;
 
-            LoadAudio(samples, mono);
-            EncodeAudio();
-            transcribe = true;
+            using Tensor<float> audioInput = LoadAudio(samples, mono);
+            using Tensor<float> encodedAudio = EncodeAudio(audioInput);
+            bool transcribe = true;
 
-            tokensTensor = MakeTokensTensor(tokenCount);
+            Tensor<int> tokensTensor = MakeTokensTensor(tokenCount, outputTokens);
 
-            lastToken = new NativeArray<int>(1, Allocator.Persistent); lastToken[0] = NO_TIME_STAMPS;
-            lastTokenTensor = new Tensor<int>(new TensorShape(1, 1), new[] { NO_TIME_STAMPS });
+            var lastToken = new NativeArray<int>(1, Allocator.Persistent); 
+            lastToken[0] = NO_TIME_STAMPS;
+            
+            using var lastTokenTensor = new Tensor<int>(new TensorShape(1, 1), new[] { NO_TIME_STAMPS });
 
             while (true)
             {
                 if (!transcribe || tokenCount >= (outputTokens.Length - 1))
-                    return;
-                m_Awaitable = InferenceStep();
-                await m_Awaitable;
-                callback.Invoke(outputString);
+                    break;
+                int index = await InferenceStep(encodedAudio, tokensTensor, lastTokenTensor);
+
+                // Commit predicted token to history and rebuild tensors for next step.
+                outputTokens[tokenCount] = lastToken[0];
+                lastToken[0] = index;
+                tokenCount++;
+                tokensTensor.Dispose();
+                tokensTensor = MakeTokensTensor(tokenCount, outputTokens);
+                lastTokenTensor.dataOnBackend.Upload<int>(lastToken, 1);
+
+                if (index == END_OF_TEXT)
+                {
+                    transcribe = false;
+                }
+                else if (index < tokens.Length)
+                {
+                    callback.Invoke(GetUnicodeText(tokens[index]));
+                }
             }
+
+            tokensTensor.Dispose();
+            outputTokens.Dispose();
+            lastToken.Dispose();
         }
-        Awaitable m_Awaitable;
 
-        NativeArray<int> lastToken;
-        Tensor<int> lastTokenTensor;
-        Tensor<int> tokensTensor;
-        Tensor<float> audioInput;
-
-        void LoadAudio(float[] samples, bool mono = false)
+        Tensor<float> LoadAudio(float[] samples, bool mono = false)
         {
             int numSamples = samples.Length;
             var data = new float[maxSamples];
@@ -126,15 +131,14 @@ namespace RoleBot.STT.Inference
             // Handle stereo to mono conversion
             if (!mono)
             {
-                Debug.Log("TODO: Handle stereo audio");
-                // var stereoData = new float[numSamples * 2];
-                // audioClip.GetData(stereoData, 0);
-
-                // int monoSamples = Mathf.Min(numSamples, maxSamples);
-                // for (int i = 0; i < monoSamples; i++)
-                // {
-                //     data[i] = (stereoData[i * 2] + stereoData[i * 2 + 1]) / 2f;
-                // }
+                int monoSamples = Mathf.Min(numSamples / 2, maxSamples);
+                for (int i = 0; i < monoSamples; i++)
+                {
+                    if (i < monoSamples)
+                        data[i] = (samples[i * 2] + samples[i * 2 + 1]) * 0.5f;
+                    else
+                        data[i] = 0;   
+                }
             }
             else
             {
@@ -147,19 +151,21 @@ namespace RoleBot.STT.Inference
                         data[i] = 0;                    
                 }
             }
-            audioInput = new Tensor<float>(new TensorShape(1, maxSamples), data);
+            return new Tensor<float>(new TensorShape(1, maxSamples), data);
         }
 
-        void EncodeAudio()
+        Tensor<float> EncodeAudio(Tensor<float> audioInput)
         {
             spectrogram.Schedule(audioInput);
-            var logmel = spectrogram.PeekOutput() as Tensor<float>;
-            encoder.Schedule(logmel);
-            encodedAudio = encoder.PeekOutput() as Tensor<float>;
-            
-            logmel?.Dispose();
+            using (Tensor<float> logmel = spectrogram.PeekOutput() as Tensor<float>)
+            {
+                encoder.Schedule(logmel);
+            }
+
+            return encoder.PeekOutput() as Tensor<float>;
         }
-        async Awaitable InferenceStep()
+
+        async Task<int> InferenceStep(Tensor<float> encodedAudio, Tensor<int> tokensTensor, Tensor<int> lastTokenTensor)
         {
             decoder1.SetInput("input_ids", tokensTensor);
             decoder1.SetInput("encoder_hidden_states", encodedAudio);
@@ -204,29 +210,15 @@ namespace RoleBot.STT.Inference
 
             decoder2.Schedule();
 
-            var logits = decoder2.PeekOutput("logits") as Tensor<float>;
+            using var logits = decoder2.PeekOutput("logits") as Tensor<float>;
             argmax.Schedule(logits);
             using var t_Token = await argmax.PeekOutput().ReadbackAndCloneAsync() as Tensor<int>;
             int index = t_Token[0];
 
-            outputTokens[tokenCount] = lastToken[0];
-            lastToken[0] = index;
-            tokenCount++;
-            tokensTensor.Dispose();
-            tokensTensor = MakeTokensTensor(tokenCount);
-            lastTokenTensor.dataOnBackend.Upload<int>(lastToken, 1);
-
-            if (index == END_OF_TEXT)
-            {
-                transcribe = false;
-            }
-            else if (index < tokens.Length)
-            {
-                outputString += GetUnicodeText(tokens[index]);
-            }
+            return index;
         }
 
-        Tensor<int> MakeTokensTensor(int count)
+        Tensor<int> MakeTokensTensor(int count, NativeArray<int> outputTokens)
         {
             var data = new int[count];
             for (int i = 0; i < count; i++) data[i] = outputTokens[i];
@@ -274,17 +266,6 @@ namespace RoleBot.STT.Inference
             return !(('!' <= c && c <= '~') || ('�' <= c && c <= '�') || ('�' <= c && c <= '�'));
         }
 
-        /// <summary>
-        /// Clears the cached output and returns it.
-        /// </summary>
-        /// <returns>The cached output before it is cleared.</returns>
-        public string ClearOutput()
-        {
-            string s  = outputString;
-            outputString = "";
-            return s;
-        }
-
         public void Dispose()
         {
             decoder1?.Dispose();
@@ -292,11 +273,6 @@ namespace RoleBot.STT.Inference
             encoder?.Dispose();
             spectrogram?.Dispose();
             argmax?.Dispose();
-            audioInput?.Dispose();
-            lastTokenTensor?.Dispose();
-            tokensTensor?.Dispose();
-
-            encodedAudio?.Dispose();
         }
     }
 }
