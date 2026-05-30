@@ -17,10 +17,10 @@ namespace RoleBot.STT
     {
         [Header("Inference")]
         public BackendType backendType = BackendType.CPU;
-        public ModelAsset audioDecoder1, audioDecoder2;
-        public ModelAsset audioEncoder;
-        public ModelAsset logMelSpectro;
-        public TextAsset vocab;
+        [SerializeField] private ModelAsset audioDecoder1, audioDecoder2;
+        [SerializeField] private ModelAsset audioEncoder;
+        [SerializeField] private ModelAsset logMelSpectro;
+        [SerializeField] private TextAsset vocab;
 
         [Header("Voice Activity Detection")]
         [Tooltip("If true the STTEngine will automatically filter the audio that gets sent to inference based on if speech is detected or not.")]
@@ -31,7 +31,8 @@ namespace RoleBot.STT
         public float speechBufferTime = 3.0f;
 
         [Header("Audio")]
-        public AudioSource Echo;
+        [SerializeField]
+        private AudioSource Echo;
 
         [Header("Events")]
         public UnityEvent<string> onTranscriptionUpdated;
