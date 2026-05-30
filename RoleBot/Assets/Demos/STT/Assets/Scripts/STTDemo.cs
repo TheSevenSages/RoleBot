@@ -1,16 +1,25 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class STTDemo : MonoBehaviour
+namespace RoleBot.STT.Demos
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class STTDemo : MonoBehaviour
     {
-        
-    }
+        public STTEngine sttEngine;
+        public TMP_Text transcriptionOutput;
+        public Button micToggle;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
+            
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            
+        }
     }
 }

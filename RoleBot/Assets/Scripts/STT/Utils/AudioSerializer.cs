@@ -47,17 +47,6 @@ namespace RoleBot.STT.Utils
             micDevice = null;
         }
 
-        // private IEnumerator MicCaptureTick(Action<float[]> callback, int sampleRate)
-        // {
-        //     while (true)
-        //     {
-        //         yield return new WaitForSeconds(0.06f);
-        //         float[] chunk = GetMicrophoneChunk(sampleRate);
-        //         if (chunk != null)
-        //             callback?.Invoke(chunk);
-        //     }
-        // }
-
         private async Task MicCaptureTick(Action<float[]> callback, int sampleRate)
         {
             while (capturing)
@@ -111,40 +100,7 @@ namespace RoleBot.STT.Utils
                     : mono[Mathf.Min(srcI, mono.Length - 1)];
             }
 
-            // // Convert float [-1,1] to PCM16 little-endian
-            // byte[] pcm = new byte[resampled.Length * 2];
-            // for (int i = 0; i < resampled.Length; i++)
-            // {
-            //     short s = (short)(Mathf.Clamp(resampled[i], -1f, 1f) * 32767f);
-            //     pcm[i * 2]     = (byte)(s & 0xFF);
-            //     pcm[i * 2 + 1] = (byte)((s >> 8) & 0xFF);
-            // }
-
             return resampled;
         }
-
-        // /// <summary>
-        // /// Converts a base64 string into a usable audioclip and then returns it.
-        // /// </summary>
-        // /// <param name="base64">The string to be converted into an audioclip.</param>
-        // /// <param name="targetSampleRate">The sample rate for the audio clip.</param>
-        // /// <returns>An AudioClip that contains the data of the given string</returns>
-        // public AudioClip Base64ToAudioClip(string base64, int targetSampleRate)
-        // {
-        //     byte[] pcm = System.Convert.FromBase64String(base64);
-        //     int sampleCount = pcm.Length / 2;
-
-        //     float[] samples = new float[sampleCount];
-        //     for (int i = 0; i < sampleCount; i++)
-        //     {
-        //         short s = (short)(pcm[i * 2] | (pcm[i * 2 + 1] << 8));
-        //         samples[i] = s / 32768f;
-        //     }
-
-        //     AudioClip clip = AudioClip.Create("response_chunk", sampleCount, 1, targetSampleRate, false);
-        //     clip.SetData(samples, 0);
-
-        //     return clip;
-        // }
     }
 }

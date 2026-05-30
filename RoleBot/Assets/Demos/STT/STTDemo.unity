@@ -1365,9 +1365,15 @@ MonoBehaviour:
   logMelSpectro: {fileID: 5022602860645237092, guid: 6a735971813ec1d49851cb5d77908dc5, type: 3}
   vocab: {fileID: 4900000, guid: 0214045d776050f4c9532a0a9ecf4f16, type: 3}
   useVAD: 1
-  VADThreshold: 0.1
+  VADThreshold: 0.03
   speechBufferTime: 3
-  Echo: {fileID: 1057922599}
+  Echo: {fileID: 0}
+  onTranscriptionUpdated:
+    m_PersistentCalls:
+      m_Calls: []
+  onTranscriptionCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &1057922599
 AudioSource:
   m_ObjectHideFlags: 0

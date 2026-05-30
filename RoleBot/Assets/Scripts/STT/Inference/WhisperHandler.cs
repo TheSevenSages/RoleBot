@@ -80,8 +80,8 @@ namespace RoleBot.STT.Inference
             spectrogram = new Worker(ModelLoader.Load(logMelSpectro), backendType);
         }
 
-        public void Transcribe(float[] samples, bool mono = false) { _ = _Transcribe(samples, mono); }
-        private async Task _Transcribe(float[] samples, bool mono = false)
+        public void Transcribe(Action<string> callback, float[] samples, bool mono = false) { _ = _Transcribe(callback, samples, mono); }
+        private async Task _Transcribe(Action<string> callback, float[] samples, bool mono = false)
         {
             outputTokens = new NativeArray<int>(maxTokens, Allocator.Persistent);
 
@@ -106,6 +106,7 @@ namespace RoleBot.STT.Inference
                     return;
                 m_Awaitable = InferenceStep();
                 await m_Awaitable;
+                callback.Invoke(outputString);
             }
         }
         Awaitable m_Awaitable;
@@ -155,6 +156,8 @@ namespace RoleBot.STT.Inference
             var logmel = spectrogram.PeekOutput() as Tensor<float>;
             encoder.Schedule(logmel);
             encodedAudio = encoder.PeekOutput() as Tensor<float>;
+            
+            logmel?.Dispose();
         }
         async Awaitable InferenceStep()
         {
@@ -221,8 +224,6 @@ namespace RoleBot.STT.Inference
             {
                 outputString += GetUnicodeText(tokens[index]);
             }
-
-            Debug.Log(outputString);
         }
 
         Tensor<int> MakeTokensTensor(int count)
@@ -273,9 +274,15 @@ namespace RoleBot.STT.Inference
             return !(('!' <= c && c <= '~') || ('�' <= c && c <= '�') || ('�' <= c && c <= '�'));
         }
 
-        public void ClearOutput()
+        /// <summary>
+        /// Clears the cached output and returns it.
+        /// </summary>
+        /// <returns>The cached output before it is cleared.</returns>
+        public string ClearOutput()
         {
+            string s  = outputString;
             outputString = "";
+            return s;
         }
 
         public void Dispose()
@@ -288,6 +295,8 @@ namespace RoleBot.STT.Inference
             audioInput?.Dispose();
             lastTokenTensor?.Dispose();
             tokensTensor?.Dispose();
+
+            encodedAudio?.Dispose();
         }
     }
 }
