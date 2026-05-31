@@ -70,6 +70,12 @@ namespace RoleBot.STT.Inference
             spectrogram = new Worker(ModelLoader.Load(logMelSpectro), backendType);
         }
 
+        /// <summary>
+        /// Transcribes the provided audio.
+        /// </summary>
+        /// <param name="callback">Invoked with the transcription once it's complete.</param>
+        /// <param name="samples">Audio to be transcribed.</param>
+        /// <param name="mono">Wether the audio is mono or stereo.</param>
         public void Transcribe(Action<string> callback, float[] samples, bool mono = false) { _ = _Transcribe(callback, samples, mono); }
         private async Task _Transcribe(Action<string> callback, float[] samples, bool mono = false)
         {
@@ -92,6 +98,7 @@ namespace RoleBot.STT.Inference
             
             using var lastTokenTensor = new Tensor<int>(new TensorShape(1, 1), new[] { NO_TIME_STAMPS });
 
+            string outputText = "";
             while (true)
             {
                 if (!transcribe || tokenCount >= (outputTokens.Length - 1))
@@ -112,9 +119,10 @@ namespace RoleBot.STT.Inference
                 }
                 else if (index < tokens.Length)
                 {
-                    callback.Invoke(GetUnicodeText(tokens[index]));
+                    outputText += GetUnicodeText(tokens[index]);
                 }
             }
+            callback.Invoke(outputText);
 
             tokensTensor.Dispose();
             outputTokens.Dispose();

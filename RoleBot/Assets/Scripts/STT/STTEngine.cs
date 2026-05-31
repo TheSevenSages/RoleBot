@@ -1,5 +1,5 @@
 // Written by Jacob Robinson, May 2026
-// Last Updated: 5.29.26
+// Last Updated: 5.31.26
 
 using RoleBot.STT.Inference;
 using UnityEngine;
@@ -9,12 +9,16 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using UnityEngine.Events;
-using Unity.VisualScripting;
+using Unity.Mathematics;
+using System;
 
 namespace RoleBot.STT
 {
     public class STTEngine : MonoBehaviour
     {
+        private enum ENGINE_STATES { LISTENING, FINALIZING }
+        ENGINE_STATES state = ENGINE_STATES.LISTENING;
+
         [Header("Inference")]
         public BackendType backendType = BackendType.CPU;
         [SerializeField] private ModelAsset audioDecoder1, audioDecoder2;
@@ -38,18 +42,17 @@ namespace RoleBot.STT
         public UnityEvent<string> onTranscriptionCompleted;
 
         private Queue<float[]> sampleQueue = new Queue<float[]>();
-        private float lastSpeechTime = 0.0f;
+        private float lastSpeechTime = math.INFINITY;
+        private UInt64 numClipsBeingTranscribed = 0;
 
         private string outputString = "";
 
-        private WhisperHandler whisper;
-        private AudioSerializer serializer; 
+        private WhisperHandler whisper = null;
+        private AudioSerializer serializer = null; 
     
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
+        void Awake()
         {
-            whisper = new WhisperHandler(backendType, audioDecoder1, audioDecoder2, audioEncoder, logMelSpectro, vocab);
-            serializer = new AudioSerializer();
+            LazyLoad();
         }
 
         /// <summary>
@@ -59,6 +62,8 @@ namespace RoleBot.STT
         /// <param name="sampleRate">Optional, the sample rate to record the mic output at.</param>
         public void MicOn(int micIndex = 0, int sampleRate = 16000)
         {
+            // Ensure that whisper and the serializer are availble when needed, even if STTEngine hasn't had a chance to "Awake" yet.
+            LazyLoad();
             serializer.StartMicrophoneCapture(ProcessMicChunk, micIndex, sampleRate);
         }
 
@@ -68,7 +73,18 @@ namespace RoleBot.STT
         public void MicOff()
         {
             serializer.EndMicrophoneCapture();
-            CompleteTranscription();
+            state = ENGINE_STATES.FINALIZING;
+        }
+
+        /// <summary>
+        /// Loads whisper and the serializer.
+        /// </summary>
+        void LazyLoad()
+        {
+            if (whisper == null)
+                whisper = new WhisperHandler(backendType, audioDecoder1, audioDecoder2, audioEncoder, logMelSpectro, vocab);
+            if (serializer == null)
+                serializer = new AudioSerializer();
         }
 
         /// <summary>
@@ -77,8 +93,17 @@ namespace RoleBot.STT
         /// <param name="s">The string to add to the end of the ongoing transcription.</param>
         void UpdateTranscription(string s)
         {
+            if (numClipsBeingTranscribed != 0)
+                numClipsBeingTranscribed--;
+            else
+                Debug.LogError("STTEngine: Clips transcribed exceeds expected.");
+
             outputString += s;
-            onTranscriptionUpdated.Invoke(outputString);
+
+            if (state == ENGINE_STATES.FINALIZING && numClipsBeingTranscribed == 0)
+                CompleteTranscription();
+            else
+                onTranscriptionUpdated.Invoke(outputString);
         }
 
         /// <summary>
@@ -88,6 +113,8 @@ namespace RoleBot.STT
         {
             onTranscriptionCompleted.Invoke(outputString);
             outputString = "";
+            state = ENGINE_STATES.LISTENING;
+            lastSpeechTime = math.INFINITY;
         }
 
         /// <summary>
@@ -98,24 +125,23 @@ namespace RoleBot.STT
         {
             if (!useVAD)
             {
-                whisper.Transcribe(UpdateTranscription, samples, true);
+                SendSamplesForTranscription(UpdateTranscription, samples, true);
             }
             else
             {
                 if (IsVoiceActive(samples, VADThreshold))
                 {
-                    Debug.Log("SPEAKING");
                     lock (sampleQueue) { sampleQueue.Enqueue(samples); }
                     lastSpeechTime = Time.time;
                 }
                 else
                 {
-                    Debug.Log("NOT SPEAKING");
-                    if (sampleQueue.Count >= 3 )
+                    if (state == ENGINE_STATES.LISTENING && lastSpeechTime != math.INFINITY)
                     {
                         lock (sampleQueue)
                         {
-                            Debug.Log("Transcribing...");
+                            sampleQueue.Enqueue(samples);
+
                             List<float> allSamples = new List<float>();
                             while (sampleQueue.Count > 0)
                             {
@@ -135,21 +161,24 @@ namespace RoleBot.STT
                                 Echo.Play();
                             }
 
-                            whisper.Transcribe(UpdateTranscription, allSamplesArr, true);
+                            SendSamplesForTranscription(UpdateTranscription, allSamplesArr, true);
                         }
                     }
-                    else if (Time.time - lastSpeechTime > speechBufferTime)
+                    if (state == ENGINE_STATES.LISTENING && Time.time - lastSpeechTime > speechBufferTime)
                     {
-                        CompleteTranscription();
-                    }
-
-                    // If speech has recently been detected we still want to record the samples in case the VAD was wrong for this "frame"
-                    if (sampleQueue.Count >= 1)
-                    {
-                        lock (sampleQueue) { sampleQueue.Enqueue(samples); }
+                        state = ENGINE_STATES.FINALIZING;
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Wrapper for <see cref="WhisperHandler.Transcribe"/> 
+        /// </summary>
+        void SendSamplesForTranscription(System.Action<string> callback, float[] samples, bool mono)
+        {
+            numClipsBeingTranscribed++;
+            whisper.Transcribe(callback, samples, mono);
         }
 
         /// <summary>
