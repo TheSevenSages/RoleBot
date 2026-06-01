@@ -2738,6 +2738,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3769199699943527213, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: trimBuffer
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 3769199699943527213, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: bufferThreshold
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 6230324046441753110, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
       propertyPath: m_Name
       value: TTSEngine

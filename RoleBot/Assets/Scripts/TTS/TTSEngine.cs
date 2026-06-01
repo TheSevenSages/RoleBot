@@ -7,6 +7,7 @@ using UnityEngine;
 using RoleBot.TTS.Inference;
 using RoleBot.TTS.Utils;
 using Unity.InferenceEngine;
+using System;
 
 namespace RoleBot.TTS
 {
@@ -17,8 +18,14 @@ namespace RoleBot.TTS
         public BackendType backendType;
         public ModelAsset model;
         private KokoroHandler kokoro = null;
+        // Serializes speech requests so they can play gaplessly
+        private Queue<(string text, float speed, Voice voice)> messageQueue = new Queue<(string text, float speed, Voice voice)>();
 
-        // Audio
+        [Header("Audio Settings")]
+        [Tooltip("The percent of the auto-generated silence buffer to trim")]
+        [SerializeField] private int trimBuffer = 30;
+        [Tooltip("The difference from 0 a sample needs to be to be considered \"silent\" for our buffer trimming")]
+        [SerializeField] private float bufferThreshold = 0.01f;
         private const int STREAM_SAMPLE_RATE = 24000;
         private Queue<float[]> sampleQueue = new Queue<float[]>();
         private float[] currentSamples;
@@ -60,8 +67,36 @@ namespace RoleBot.TTS
 
             _ = kokoro?.GenerateSpeech(text, speed, voice,
             (float[] output) => {
-                lock (sampleQueue) { sampleQueue.Enqueue(output); }
+                lock (sampleQueue) { sampleQueue.Enqueue(TrimAudio(output)); }
             });
+        }
+
+        /// <summary>
+        /// Trims the auto-generated silence buffers from the given samples.
+        /// </summary>
+        /// <param name="samples">The samples to trim</param>
+        /// <returns>The trimmed samples.</returns>
+        private float[] TrimAudio(float[] samples)
+        {
+            int i = 0;
+            while (i < samples.Length)
+            {
+                if (Math.Abs(samples[i]) > bufferThreshold)
+                    break;
+                i++;
+            }
+            float percentTrim = (float)Mathf.Clamp(trimBuffer, 0, 100) / 100.0f;
+            int numTrimmed = (int)(i * percentTrim);
+            float[] trimmed = new float[samples.Length - numTrimmed];
+
+            for (int j = 0; j < trimmed.Length; j++)
+            {
+                if (j < i - numTrimmed)
+                    trimmed[j] = 0;
+                else
+                    trimmed[j] = samples[j];
+            }   
+            return trimmed;
         }
 
         /// <summary>

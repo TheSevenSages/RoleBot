@@ -89,10 +89,21 @@ namespace RoleBot.TTS.Utils
     {
         public string Name;
         public Tensor<float> Tensor;
+        private float[] voicepack;
         public Voice(string name, Tensor<float> tensor)
         {
             Name = name;
             Tensor = tensor;
+
+            voicepack = tensor.DownloadToArray();
+        }
+
+        public Tensor<float> GetVoiceVector(int tokenCount, int maxTokens)
+        {
+            int index = Mathf.Clamp(tokenCount, 0, maxTokens - 1);
+            var slice = new float[256];
+            Array.Copy(voicepack, index * 256, slice, 0, 256);
+            return new Tensor<float>(new TensorShape(1, 256), slice);
         }
 
         public void Dispose()

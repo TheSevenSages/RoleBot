@@ -6,6 +6,7 @@ using System;
 using Unity.InferenceEngine;
 using System.Threading.Tasks;
 using RoleBot.TTS.Utils;
+using System.Collections.Generic;
 
 namespace RoleBot.TTS.Inference
 {
@@ -17,6 +18,9 @@ namespace RoleBot.TTS.Inference
 
         private Model m_Model;
         private Worker m_Worker;
+
+        private Queue<(Tensor<int> inputIds, Tensor<float> speed, Tensor<float> voice, Action<float[]> cb)> speechRequestQueue = new Queue<(Tensor<int> inputIds, Tensor<float> speed, Tensor<float> voice, Action<float[]> cb)>();
+        private bool processingRequest = false;
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         public KokoroHandler(BackendType backendType, ModelAsset modelAsset)
         {
@@ -27,7 +31,7 @@ namespace RoleBot.TTS.Inference
 
             voiceUtils = new VoiceUtils();
         }
-
+        
         public async Task GenerateSpeech(string text, float speed, Voice voice, Action<float[]> callback)
         {
             var inputIds = MisakiSharp.TokenizeGraphemes(text);
@@ -37,21 +41,38 @@ namespace RoleBot.TTS.Inference
             Array.Copy(inputIds, 0, paddedInputIds, 1, inputIds.Length);
             paddedInputIds[^1] = 0;
 
-            using Tensor<int> inputIdsTensor = new Tensor<int>(new TensorShape(1, paddedInputIds.Length), paddedInputIds);
-            using Tensor<float> speedTensor = new Tensor<float>(new TensorShape(1), new[] { speed });
-            using Tensor<float> voiceTensor = await GetVoiceVector(inputIdsTensor, voice.Tensor);
+            Tensor<int> inputIdsTensor = new Tensor<int>(new TensorShape(1, paddedInputIds.Length), paddedInputIds);
+            Tensor<float> speedTensor = new Tensor<float>(new TensorShape(1), new[] { speed });
+            // Tensor<float> voiceTensor = await GetVoiceVector(inputIdsTensor, voice.Tensor);
+            Tensor<float> voiceTensor = voice.GetVoiceVector(paddedInputIds.Length, 512);
 
-            LoadModelIfMissing();
+            speechRequestQueue.Enqueue((inputIdsTensor, speedTensor, voiceTensor, callback));
 
-            m_Worker.Schedule(inputIdsTensor, voiceTensor, speedTensor);
-            using Tensor<float> result = m_Worker.PeekOutput() as Tensor<float>;
-            using Tensor<float> output = await result.ReadbackAndCloneAsync();
+            if (!processingRequest)
+            {
+                processingRequest = true;
+                while (speechRequestQueue.Count > 0)
+                {
+                    var request = speechRequestQueue.Dequeue();
 
-            using Tensor<float> processedOutput = KokoroOutputProcessor.Apply2NotchFiltering(output);
+                    LoadModelIfMissing();
 
-            // Save the output
-            var arr = processedOutput.DownloadToArray();
-            callback.Invoke(arr);
+                    m_Worker.Schedule(request.inputIds, request.voice, request.speed);
+                    using Tensor<float> result = m_Worker.PeekOutput() as Tensor<float>;
+                    using Tensor<float> output = await result.ReadbackAndCloneAsync();
+
+                    using Tensor<float> processedOutput = KokoroOutputProcessor.Apply2NotchFiltering(output);
+
+                    // Save the output
+                    var arr = processedOutput.DownloadToArray();
+                    request.cb?.Invoke(arr);
+
+                    request.inputIds?.Dispose();
+                    request.voice?.Dispose();
+                    request.speed?.Dispose();
+                }
+                processingRequest = false;
+            }
         }
 
         private void LoadModelIfMissing()
@@ -81,6 +102,15 @@ namespace RoleBot.TTS.Inference
         {
             m_Worker?.Dispose();
             m_Worker = null;
+
+            while (speechRequestQueue.Count > 0)
+            {
+                var request = speechRequestQueue.Dequeue();
+
+                request.inputIds?.Dispose();
+                request.voice?.Dispose();
+                request.speed?.Dispose();
+            }
 
             voiceUtils?.Dispose();
         }

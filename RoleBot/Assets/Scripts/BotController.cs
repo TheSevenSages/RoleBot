@@ -39,7 +39,6 @@ namespace RoleBot
             _ = chat.Chat(message, (string s) =>
             {
                 string newOutput = s.Substring(lastPunctuationIndex);
-                // if (newOutput.Split())
                 output = s;
                 int punct = newOutput.IndexOfAny(SPLIT_PUNCT) + 1;
                 if (punct > 0)
@@ -49,8 +48,6 @@ namespace RoleBot
                     tts.Speak(sentance, voice);
                     lastPunctuationIndex += punct;
                 }
-                
-                // tts.Speak(newOutput, voice);
             }, () =>
             {
                 Debug.Log(output);
@@ -60,7 +57,6 @@ namespace RoleBot
                     Debug.Log(sentance);
                     tts.Speak(sentance, voice);
                 }
-                // tts.Speak(output, voice);
             });
         }
 
