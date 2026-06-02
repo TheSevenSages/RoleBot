@@ -60,7 +60,7 @@ namespace RoleBot.TTS.Utils
             {
                 try
                 {
-                    RawBytesAsset voiceData = AssetDatabase.LoadAssetAtPath<RawBytesAsset>(voicesList[name]);
+                    RawBytesAsset voiceData = Resources.Load<RawBytesAsset>(voicesList[name]);
                     var voiceArray = new float[voiceData.bytes.Length / sizeof(float)];
                     Buffer.BlockCopy(voiceData.bytes, 0, voiceArray, 0, voiceData.bytes.Length);
 
