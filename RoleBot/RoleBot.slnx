@@ -8,8 +8,6 @@
   <Project Path="TheSevenSages.RoleBot.Samples.csproj" />
   <Project Path="TheSevenSages.RoleBot.TTS.csproj" />
   <Project Path="TheSevenSages.RoleBot.Chat.csproj" />
-  <Project Path="Jacobrobinson4321.Rolebot.Tests.csproj" />
-  <Project Path="Jacobrobinson4321.Rolebot.Editor.Tests.csproj" />
   <Project Path="TheSevenSages.RoleBot.csproj" />
   <Project Path="TheSevenSages.RoleBot.STT.csproj" />
   <Project Path="TheSevenSages.RoleBot.Editor.csproj" />
