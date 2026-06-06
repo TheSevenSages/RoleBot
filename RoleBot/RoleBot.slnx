@@ -5,6 +5,7 @@
   <Project Path="Unity.InferenceEngine.Tokenization.csproj" />
   <Project Path="Unity.InferenceEngine.Editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="TheSevenSages.RoleBot.Samples.csproj" />
   <Project Path="TheSevenSages.RoleBot.TTS.csproj" />
   <Project Path="TheSevenSages.RoleBot.Chat.csproj" />
   <Project Path="undream.llmunity.Runtime.csproj" />
