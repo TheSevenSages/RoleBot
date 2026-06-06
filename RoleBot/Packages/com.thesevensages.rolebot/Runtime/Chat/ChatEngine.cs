@@ -3,18 +3,25 @@
 
 using System;
 using System.Threading.Tasks;
-using LLMUnity;
 using UnityEngine;
+
+#if LLMUNITY_PRESENT
+using LLMUnity;
+#endif
 
 namespace RoleBot.Chat
 {
+#if LLMUNITY_PRESENT
     [RequireComponent(typeof(LLM)), RequireComponent(typeof(LLMAgent))]
+#endif
     public class ChatEngine : MonoBehaviour
     {
+#if LLMUNITY_PRESENT
         private LLMAgent agent = null;
-
+#endif
         void Awake()
         {
+#if LLMUNITY_PRESENT
             agent = GetComponent<LLMAgent>();
             if (agent == null)
             {
@@ -22,6 +29,9 @@ namespace RoleBot.Chat
                 return;
             }
             // Warmup with system prompt?
+#else
+            Debug.LogError("[RoleBot] The LLMUnity package is required for ChatEngine. Please install with GitHub using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+#endif
         }
 
         /// <summary>
@@ -36,7 +46,12 @@ namespace RoleBot.Chat
         public async Task<string> Chat(string message, Action<string> partialCallback = null, 
         Action completionCallback = null, bool addToHistory = true)
         {
+#if LLMUNITY_PRESENT
             return await agent.Chat(message, partialCallback, completionCallback, addToHistory);
+#else
+            Debug.LogError("[RoleBot] The LLMUnity package is required for ChatEngine. Please install with GitHub using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+            return await Task.FromResult<string>(null);
+#endif
         }
     }
 }

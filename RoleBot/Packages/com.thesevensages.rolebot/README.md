@@ -1,1 +1,1 @@
-Use this file to describe your package's features.
+Please download the LLMUnity package from GitHub to use LLM capabilities.

@@ -12,6 +12,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "ai.undream.llm",
+            "expression": "3.0.3",
+            "define": "LLMUNITY_PRESENT"
+        }
+    ],
     "noEngineReferences": false
 }

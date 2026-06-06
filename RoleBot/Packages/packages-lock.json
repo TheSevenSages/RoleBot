@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "ai.undream.llm": {
+      "version": "https://github.com/undreamai/LLMUnity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      },
+      "hash": "2c30b44020c7899153bbca02ec0faae73916c6ec"
+    },
     "com.thesevensages.rolebot": {
       "version": "file:com.thesevensages.rolebot",
       "depth": 0,

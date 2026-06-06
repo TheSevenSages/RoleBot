@@ -2,7 +2,7 @@
     "name": "TheSevenSages.RoleBot.Editor",
     "rootNamespace": "",
     "references": [
-        "TheSevenSages.RoleBot.Data"
+        "GUID:791c630668fb1604388db1b3dfad9a87"
     ],
     "includePlatforms": [
         "Editor"
