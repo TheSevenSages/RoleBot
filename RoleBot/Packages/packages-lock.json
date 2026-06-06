@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.thesevensages.rolebot": {
+      "version": "file:com.thesevensages.rolebot",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.test-framework": "1.6.0",
+        "com.unity.ai.inference": "2.6.1"
+      }
+    },
     "com.unity.ai.inference": {
       "version": "file:com.unity.ai.inference",
       "depth": 0,

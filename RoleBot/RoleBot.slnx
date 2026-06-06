@@ -4,12 +4,19 @@
   <Project Path="Unity.InferenceEngine.csproj" />
   <Project Path="Unity.InferenceEngine.Tokenization.csproj" />
   <Project Path="Unity.InferenceEngine.Editor.csproj" />
-  <Project Path="undream.llmunity.Runtime.csproj" />
-  <Project Path="undream.llmunity.Editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="TheSevenSages.RoleBot.TTS.csproj" />
+  <Project Path="TheSevenSages.RoleBot.Chat.csproj" />
+  <Project Path="undream.llmunity.Runtime.csproj" />
+  <Project Path="Jacobrobinson4321.Rolebot.Tests.csproj" />
+  <Project Path="undream.llmunity.Editor.csproj" />
   <Project Path="Cloud.Unum.USearch.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="Jacobrobinson4321.Rolebot.Editor.Tests.csproj" />
+  <Project Path="TheSevenSages.RoleBot.csproj" />
+  <Project Path="TheSevenSages.RoleBot.STT.csproj" />
+  <Project Path="TheSevenSages.RoleBot.Editor.csproj" />
   <Project Path="Unity.InferenceEngine.MacBLAS.csproj" />
   <Project Path="Unity.InferenceEngine.ONNX.Editor.csproj" />
   <Project Path="Unity.InferenceEngine.iOSBLAS.csproj" />
+  <Project Path="TheSevenSages.RoleBot.Data.csproj" />
 </Solution>

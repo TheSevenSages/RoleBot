@@ -1,0 +1,17 @@
+{
+    "name": "TheSevenSages.RoleBot.Chat",
+    "rootNamespace": "",
+    "references": [
+        "GUID:cf7c06d97d9c3b7db881733f839f5ae3",
+        "GUID:0f56ff5d9795d4431b39d0095f703b29"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

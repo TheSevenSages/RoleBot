@@ -1,0 +1,11 @@
+{
+    "name": "Jacobrobinson4321.Rolebot.Tests",
+    "references": [
+        "Jacobrobinson4321.Rolebot"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": []
+}

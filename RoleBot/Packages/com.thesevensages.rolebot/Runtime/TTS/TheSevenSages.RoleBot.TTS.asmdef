@@ -1,0 +1,17 @@
+{
+    "name": "TheSevenSages.RoleBot.TTS",
+    "rootNamespace": "",
+    "references": [
+        "GUID:63a57c8b658089e49a173b0f0c4870a7",
+        "GUID:791c630668fb1604388db1b3dfad9a87"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
