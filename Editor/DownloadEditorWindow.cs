@@ -2,20 +2,20 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Unity.InferenceEngine.Samples.TTS.Editor
+namespace RoleBot.Editor
 {
     public class DownloadEditorWindow : EditorWindow
     {
         void CreateGUI()
         {
-            rootVisualElement.Clear();
-            rootVisualElement.AddToClassList("unity-editor");
-            titleContent = new GUIContent("Kokoro Text-To-Speech - Download Files");
-            var visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Src/UI/Network/ModelDownloaderWindow.uxml");
-            visualTreeAsset.CloneTree(rootVisualElement);
+            // rootVisualElement.Clear();
+            // rootVisualElement.AddToClassList("unity-editor");
+            // titleContent = new GUIContent("RoleBot - Download Files");
+            // var visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Src/UI/Network/ModelDownloaderWindow.uxml");
+            // visualTreeAsset.CloneTree(rootVisualElement);
         }
 
-        [MenuItem("Sentis/Sample/Text-To-Speech/Download Models")]
+        [MenuItem("Window/RoleBot/Download Models")]
         public static void OpenWindow()
         {
             var window = GetWindow<DownloadEditorWindow>();
