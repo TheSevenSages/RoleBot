@@ -1,0 +1,18 @@
+{
+    "name": "TheSevenSages.RoleBot.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:791c630668fb1604388db1b3dfad9a87"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

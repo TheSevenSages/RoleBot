@@ -1,0 +1,25 @@
+# Unity-generated meta files are REQUIRED for packages
+# Do NOT ignore .meta files!
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Unity temp files (outside package folder)
+[Tt]emp/
+[Oo]bj/
+[Ll]ibrary/
+
+# Documentation build output (if using DocFX or similar)
+Documentation~/html/
+Documentation~/api/
+
+# Test results
+TestResults/

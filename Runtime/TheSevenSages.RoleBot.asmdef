@@ -1,0 +1,20 @@
+{
+    "name": "TheSevenSages.RoleBot",
+    "rootNamespace": "",
+    "references": [
+        "GUID:63a57c8b658089e49a173b0f0c4870a7",
+        "GUID:ecbf2590f76182b439959e9a4658c57b",
+        "GUID:3abfe269a69c2ef4182677dc010a90aa",
+        "GUID:0a8b1520fd717e34d96e72853f69eb29",
+        "GUID:791c630668fb1604388db1b3dfad9a87"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

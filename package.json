@@ -1,0 +1,42 @@
+{
+  "name": "com.thesevensages.rolebot",
+  "displayName": "RoleBot",
+  "version": "0.9.0",
+  "unity": "6000.6",
+  "unityRelease": "0a5",
+  "description": "RoleBot enables users to easily add FULLY LOCAL AI chatbots, with automatic speech detection and voice synthesis, to projects. It's easy to set up and will compile to most Unity build targets.",
+  "dependencies": {
+    "com.unity.test-framework": "1.6.0",
+    "com.unity.ai.inference": "2.6.1"
+  },
+  "author": {
+    "name": "Jacob Robinson",
+    "url": "https://robinsonjacob.com/"
+  },
+  "changelogUrl": "https://github.com/TheSevenSages/RoleBot/blob/creating-package/CHANGELOG.md",
+  "documentationUrl": "https://github.com/TheSevenSages/RoleBot/blob/creating-package/Documentation/RoleBot.md",
+  "licensesUrl": "https://github.com/TheSevenSages/RoleBot/blob/creating-package/LICENSE.md",
+  "hideInEditor": false,
+  "samples": [
+    {
+      "displayName": "Text-Based Chatbot",
+      "description": "Demonstrates how to use the ChatEngine to set up a simple text-based chatbot.",
+      "path": "Samples/TextBot"
+    },
+    {
+      "displayName": "Text-to-Speech",
+      "description": "A TTS-only demo, set up with the TTSEngine.",
+      "path": "Samples/TextToSpeech"
+    },
+    {
+      "displayName": "Realtime Transcription",
+      "description": "Uses STTEngine to transcribe microphone input in real time.",
+      "path": "Samples/RealtimeTranscription"
+    },
+    {
+      "displayName": "Speaking Chatbot",
+      "description": "Combines STT, Chat, and TTS Engines to create an AI you can speak to and it'll speak back!",
+      "path": "Samples/SpeakingBot"
+    }
+  ]
+}
