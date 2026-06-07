@@ -13,9 +13,8 @@
     "name": "Jacob Robinson",
     "url": "https://robinsonjacob.com/"
   },
-  "changelogUrl": "https://github.com/TheSevenSages/RoleBot/blob/creating-package/CHANGELOG.md",
-  "documentationUrl": "https://github.com/TheSevenSages/RoleBot/blob/creating-package/Documentation/RoleBot.md",
-  "licensesUrl": "https://github.com/TheSevenSages/RoleBot/blob/creating-package/LICENSE.md",
+  "changelogUrl": "https://github.com/TheSevenSages/RoleBot/blob/843ab8449bd6672e92be42699b63d77bbbd24443/CHANGELOG.md",
+  "licensesUrl": "https://github.com/TheSevenSages/RoleBot/blob/843ab8449bd6672e92be42699b63d77bbbd24443/LICENSE.md",
   "hideInEditor": false,
   "samples": [
     {
@@ -38,5 +37,6 @@
       "description": "Combines STT, Chat, and TTS Engines to create an AI you can speak to and it'll speak back!",
       "path": "Samples/SpeakingBot"
     }
-  ]
+  ],
+  "documentationUrl": "https://github.com/TheSevenSages/RoleBot/blob/843ab8449bd6672e92be42699b63d77bbbd24443/Documentation/RoleBot.md"
 }
