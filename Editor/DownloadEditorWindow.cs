@@ -8,11 +8,10 @@ namespace RoleBot.Editor
     {
         void CreateGUI()
         {
-            // rootVisualElement.Clear();
-            // rootVisualElement.AddToClassList("unity-editor");
-            // titleContent = new GUIContent("RoleBot - Download Files");
-            // var visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Src/UI/Network/ModelDownloaderWindow.uxml");
-            // visualTreeAsset.CloneTree(rootVisualElement);
+            rootVisualElement.Clear();
+            rootVisualElement.AddToClassList("unity-editor");
+            titleContent = new GUIContent("RoleBot - Download Files");
+            
         }
 
         [MenuItem("Window/RoleBot/Download Models")]

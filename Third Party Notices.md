@@ -17,7 +17,7 @@ License: [link](https://github.com/undreamai/LLMUnity/blob/main/LICENSE.md)
 ---------
 ## AI Models
 
-The following AI models are built in to RoleBot
+The following AI models are built in to RoleBot:
 
 ### Kokoro-82M
 
