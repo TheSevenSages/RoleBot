@@ -1,16 +1,36 @@
+# THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+
 This package contains third-party software components governed by the license(s) indicated below:
+
+---
+## Software
+
+The following software libraries are used for the LLM functionality:
+
+### LLM for Unity
+
+Developer: undreamai
+Origin: [link](https://github.com/undreamai/LLMUnity)
+License Type: Apache 2.0
+License: [link](https://github.com/undreamai/LLMUnity/blob/main/LICENSE.md)
+
 ---------
+## AI Models
 
-Component Name: [provide component name]
+The following AI models are built in to RoleBot
 
-License Type: [Provide license type, i.e. "MIT", "Apache 2.0"]
+### Kokoro-82M
 
-[Provide License Details]
+Developer: hexgrad
+Origin: [link](https://huggingface.co/hexgrad/Kokoro-82M)
+Quantization: [link](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX)
+License Type: Apache 2.0
+License: [link](https://huggingface.co/datasets/choosealicense/licenses/blob/main/markdown/apache-2.0.md)
 
----------
-Component Name: [provide component name]
+### Whisper-Tiny
 
-License Type: [Provide license type, i.e. "MIT", "Apache 2.0"]
-
-[Provide License Details]
-
+Developer: OpenAI
+Origin: [link](https://huggingface.co/openai/whisper-tiny)
+Quantization: [link](https://huggingface.co/unity/inference-engine-whisper-tiny)
+License Type: Apache 2.0
+License: [link](https://huggingface.co/datasets/choosealicense/licenses/blob/main/markdown/apache-2.0.md)
