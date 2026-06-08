@@ -4,6 +4,23 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+-----
+
+## [0.10.0] - 2026-06-07
+
+### Adding the resource downloader.
+
+#### Added
+
+- A resource downloader, accessible through window -> RoleBot -> Resource Downloader
+    - This will allow developers to easily download the AI models (and other various resources) that RoleBot needs to function!
+
+#### Changed
+
+- The TTS and STT engines no longer require public references to their respective AI models. The models are now loaded directly from the resources folder.
+
+-----
+
 ## [0.9.0] - 2026-06-06
 
 ### This is the first release of *\<RoleBot\>*.

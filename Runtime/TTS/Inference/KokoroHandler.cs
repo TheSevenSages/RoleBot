@@ -1,9 +1,10 @@
 // Written by Jacob Robinson, May 2026
-// Last Updated: 5.25.26
+// Last Updated: 6.7.26
 
 using UnityEngine;
 using System;
 using Unity.InferenceEngine;
+using UnityEngine.Assertions;
 using System.Threading.Tasks;
 using RoleBot.TTS.Utils;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace RoleBot.TTS.Inference
 {
     public class KokoroHandler : IDisposable
     {
+        const string KOKORO_MODEL_PATH = "RoleBot/models/TTS/Kokoro-82M/"; // The path to the kokoro model asset relative to the resources folder.
         public VoiceUtils voiceUtils { get; private set; }
         private ModelAsset m_modelAsset;
         private BackendType m_BackendType;
@@ -21,12 +23,15 @@ namespace RoleBot.TTS.Inference
 
         private Queue<(Tensor<int> inputIds, Tensor<float> speed, Tensor<float> voice, Action<float[]> cb)> speechRequestQueue = new Queue<(Tensor<int> inputIds, Tensor<float> speed, Tensor<float> voice, Action<float[]> cb)>();
         private bool processingRequest = false;
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        public KokoroHandler(BackendType backendType, ModelAsset modelAsset)
+        
+        public KokoroHandler(BackendType backendType)
         {
             m_BackendType = backendType;
-            m_modelAsset = modelAsset;
-            m_Model = ModelLoader.Load(modelAsset);
+            m_modelAsset = Resources.Load<ModelAsset>(KOKORO_MODEL_PATH + "kokoro");
+
+            Assert.IsNotNull(m_modelAsset, "[RoleBot][TTS] Assert that the Kokoro model is downloaded");
+
+            m_Model = ModelLoader.Load(m_modelAsset);
             m_Worker = new Worker(m_Model, m_BackendType);
 
             voiceUtils = new VoiceUtils();

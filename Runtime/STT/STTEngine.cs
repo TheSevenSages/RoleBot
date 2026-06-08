@@ -1,5 +1,5 @@
 // Written by Jacob Robinson, May 2026
-// Last Updated: 5.31.26
+// Last Updated: 6.7.26
 
 using RoleBot.STT.Inference;
 using UnityEngine;
@@ -21,10 +21,6 @@ namespace RoleBot.STT
 
         [Header("Inference")]
         public BackendType backendType = BackendType.CPU;
-        [SerializeField] private ModelAsset audioDecoder1, audioDecoder2;
-        [SerializeField] private ModelAsset audioEncoder;
-        [SerializeField] private ModelAsset logMelSpectro;
-        [SerializeField] private TextAsset vocab;
 
         [Header("Voice Activity Detection")]
         [Tooltip("If true the STTEngine will automatically filter the audio that gets sent to inference based on if speech is detected or not.")]
@@ -82,7 +78,7 @@ namespace RoleBot.STT
         void LazyLoad()
         {
             if (whisper == null)
-                whisper = new WhisperHandler(backendType, audioDecoder1, audioDecoder2, audioEncoder, logMelSpectro, vocab);
+                whisper = new WhisperHandler(backendType);
             if (serializer == null)
                 serializer = new AudioSerializer();
         }
@@ -96,7 +92,7 @@ namespace RoleBot.STT
             if (numClipsBeingTranscribed != 0)
                 numClipsBeingTranscribed--;
             else
-                Debug.LogError("STTEngine: Clips transcribed exceeds expected.");
+                Debug.LogError("[RoleBot][STT] STTEngine: Clips transcribed exceeds expected.");
 
             outputString += s;
 

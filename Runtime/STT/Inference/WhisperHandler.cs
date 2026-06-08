@@ -1,3 +1,6 @@
+// Written by Jacob Robinson, May 2026
+// Last Updated: 6.7.26
+
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.InferenceEngine;
@@ -6,11 +9,14 @@ using Unity.Collections;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
+using UnityEngine.Assertions;
 
 namespace RoleBot.STT.Inference
 {
     public class WhisperHandler : IDisposable
     {
+        const string WHISPER_MODEL_PATH = "RoleBot/models/STT/Whisper-Tiny/"; // The path to the whisper model assets relative to the resources folder.
+        const string WHISPER_DATA_PATH = "RoleBot/data/STT/Whisper-Tiny/"; // The path to the whisper model assets relative to the resources folder.
         Worker decoder1, decoder2, encoder, spectrogram;
         Worker argmax;
 
@@ -41,13 +47,19 @@ namespace RoleBot.STT.Inference
         private ModelAsset audioEncoder;
         private ModelAsset logMelSpectro;
 
-        public WhisperHandler(BackendType backendType, ModelAsset decoder1, ModelAsset decoder2, ModelAsset encoder, ModelAsset spectro, TextAsset vocab)
+        public WhisperHandler(BackendType backendType)
         {
-            audioDecoder1 = decoder1;
-            audioDecoder2 = decoder2;
-            audioEncoder = encoder;
-            logMelSpectro = spectro;
-            vocabAsset = vocab;
+            audioDecoder1 = Resources.Load<ModelAsset>(WHISPER_MODEL_PATH + "AudioDecoder");
+            audioDecoder2 = Resources.Load<ModelAsset>(WHISPER_MODEL_PATH + "AudioDecoder_WithPast");
+            audioEncoder = Resources.Load<ModelAsset>(WHISPER_MODEL_PATH + "AudioEncoder");
+            logMelSpectro = Resources.Load<ModelAsset>(WHISPER_MODEL_PATH + "LogMelSpectrogram");
+            vocabAsset = Resources.Load<TextAsset>(WHISPER_DATA_PATH + "vocab");
+
+            Assert.IsNotNull(audioDecoder1, "[RoleBot][STT] Assert that the Whisper-Tiny AudioDecoder model is downloaded");
+            Assert.IsNotNull(audioDecoder2, "[RoleBot][STT] Assert that the Whisper-Tiny AudioDecoder_WithPast model is downloaded");
+            Assert.IsNotNull(audioEncoder, "[RoleBot][STT]Assert that the Whisper-Tiny AudioEncoder model is downloaded");
+            Assert.IsNotNull(logMelSpectro, "[RoleBot][STT] Assert that the Whisper-Tiny LogMelSpectrogram model is downloaded");
+            Assert.IsNotNull(vocabAsset, "[RoleBot][STT] Assert that the Whisper-Tiny vocab asset is downloaded");
             
             Init(backendType);
         }

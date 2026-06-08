@@ -27,9 +27,9 @@ namespace RoleBot.STT.Utils
         public void StartMicrophoneCapture(Action<float[]> callback, int micIndex = 0, int sampleRate = 16000)
         {
             if (capturing)
-                Debug.LogWarning("Audio Serializer: A microphone is already being captured by this serializer.");
+                Debug.LogWarning("[RoleBot][STT] Audio Serializer: A microphone is already being captured by this serializer.");
             micDevice = Microphone.devices.Length > 0 ? Microphone.devices[micIndex] : null;
-            if (micDevice == null) { Debug.LogError("Audio Serializer: No microphone found"); return; }
+            if (micDevice == null) { Debug.LogError("[RoleBot][STT] Audio Serializer: No microphone found"); return; }
 
             micClip = Microphone.Start(micDevice, true, 1, AudioSettings.outputSampleRate);
             lastMicPosition = 0;

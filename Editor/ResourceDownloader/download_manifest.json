@@ -1,6 +1,5 @@
 {
-  "_README": "Catalog of resources the RoleBot download window can fetch. A resource's download URL is (its source's baseUrl + url); set 'source' on a resource to pick which named base to use, or give it an absolute http(s) 'url' to ignore the base entirely. 'baseUrl' below is the default used when 'source' is empty/unknown. 'destination' is relative to the package Resources folder, so it is loadable with Resources.Load(...). TODO: replace the placeholder base URLs in 'sources' and confirm each 'url' path and filename.",
-  "baseUrl": "https://huggingface.co/YOUR_USERNAME/YOUR_REPO/resolve/main/",
+  "_README": "Catalog of resources the RoleBot download window can fetch. A resource's download URL is (its source's baseUrl + url); set 'source' on a resource to pick which named base to use, or give it an absolute http(s) 'url' to ignore the base entirely. 'baseUrl' below is the default used when 'source' is empty/unknown. 'destination' is relative to the package Resources folder, so it is loadable with Resources.Load(...).",
   "sources": [
     { "key": "whisper", "baseUrl": "https://huggingface.co/unity/inference-engine-whisper-tiny/resolve/main" },
     { "key": "kokoro", "baseUrl": "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main" },
@@ -8,10 +7,10 @@
   ],
   "resources": [
     { "id": "stt_decoder1", "displayName": "Whisper Decoder (initial)", "category": "Speech-to-Text (Whisper)", "source": "whisper", "url": "models/decoder_model.onnx", "destination": "models/STT/Whisper-Tiny/AudioDecoder.onnx", "sizeBytes": 0, "sha256": "" },
-    { "id": "stt_decoder2", "displayName": "Whisper Decoder (cached)", "category": "Speech-to-Text (Whisper)", "source": "whisper", "url": "models/decoder_with_past_model.onnx", "destination": "models/STT/Whisper-Tiny/AudioDecoder_WithPast.onnx", "sizeBytes": 0, "sha256": "" },
+    { "id": "stt_decoder2", "displayName": "Whisper Decoder (with past)", "category": "Speech-to-Text (Whisper)", "source": "whisper", "url": "models/decoder_with_past_model.onnx", "destination": "models/STT/Whisper-Tiny/AudioDecoder_WithPast.onnx", "sizeBytes": 0, "sha256": "" },
     { "id": "stt_encoder", "displayName": "Whisper Encoder", "category": "Speech-to-Text (Whisper)", "source": "whisper", "url": "models/encoder_model.onnx", "destination": "models/STT/Whisper-Tiny/AudioEncoder.onnx", "sizeBytes": 0, "sha256": "" },
     { "id": "stt_spectro", "displayName": "Whisper LogMel Spectrogram", "category": "Speech-to-Text (Whisper)", "source": "whisper", "url": "models/logmel_spectrogram.onnx", "destination": "models/STT/Whisper-Tiny/LogMelSpectrogram.onnx", "sizeBytes": 0, "sha256": "" },
-    { "id": "stt_vocab", "displayName": "Whisper Vocabulary", "category": "Speech-to-Text (Whisper)", "source": "whisper", "url": "data/vocab.json", "destination": "data/STT/vocab.json", "sizeBytes": 0, "sha256": "" },
+    { "id": "stt_vocab", "displayName": "Whisper Vocabulary", "category": "Speech-to-Text (Whisper)", "source": "whisper", "url": "data/vocab.json", "destination": "data/STT/Whisper-Tiny/vocab.json", "sizeBytes": 0, "sha256": "" },
 
     { "id": "tts_kokoro", "displayName": "Kokoro TTS Model", "category": "Text-to-Speech (Kokoro)", "source": "kokoro", "url": "onnx/model.onnx", "destination": "models/TTS/Kokoro-82M/kokoro.onnx", "sizeBytes": 0, "sha256": "" },
 

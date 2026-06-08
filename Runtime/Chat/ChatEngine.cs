@@ -25,12 +25,12 @@ namespace RoleBot.Chat
             agent = GetComponent<LLMAgent>();
             if (agent == null)
             {
-                Debug.LogError("No LLMAgent found on ChatEngine!");
+                Debug.LogError("[RoleBot][Chat] No LLMAgent found on ChatEngine!");
                 return;
             }
             // Warmup with system prompt?
 #else
-            Debug.LogError("[RoleBot] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+            Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
 #endif
         }
 
@@ -49,7 +49,7 @@ namespace RoleBot.Chat
 #if LLMUNITY_PRESENT
             return await agent.Chat(message, partialCallback, completionCallback, addToHistory);
 #else
-            Debug.LogError("[RoleBot] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+            Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
             return await Task.FromResult<string>(null);
 #endif
         }

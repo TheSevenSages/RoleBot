@@ -1,5 +1,5 @@
 // Written by Jacob Robinson, May 2026
-// Last Updated: 5.26.26
+// Last Updated: 6.7.26
 
 using System.Collections.Generic;
 using System.Collections;
@@ -16,7 +16,6 @@ namespace RoleBot.TTS
     {
         [Header("Inference")]
         public BackendType backendType;
-        public ModelAsset model;
         private KokoroHandler kokoro = null;
         // Serializes speech requests so they can play gaplessly
         private Queue<(string text, float speed, Voice voice)> messageQueue = new Queue<(string text, float speed, Voice voice)>();
@@ -40,7 +39,7 @@ namespace RoleBot.TTS
             audioSource.loop = true;
             audioSource.Play();
 
-            kokoro = new KokoroHandler(backendType, model);
+            kokoro = new KokoroHandler(backendType);
         }
 
         /// <summary>
@@ -127,7 +126,9 @@ namespace RoleBot.TTS
         /// <returns>All of the valid voice names</returns>
         public string[] GetVoicesList()
         {
-            return kokoro.voiceUtils.GetVoicesList();
+            if (kokoro == null)
+                return new string[0];
+            return kokoro?.voiceUtils.GetVoicesList();
         }
 
         /// <summary>
@@ -137,12 +138,12 @@ namespace RoleBot.TTS
         /// <returns>The voice if it exists, null otherwise</returns>
         public Voice GetVoice(string voiceName)
         {
-            return kokoro.voiceUtils.GetVoice(voiceName);
+            return kokoro?.voiceUtils.GetVoice(voiceName);
         }
 
         void OnDestroy()
         {
-            kokoro.Dispose();
+            kokoro?.Dispose();
         }
     }
 }

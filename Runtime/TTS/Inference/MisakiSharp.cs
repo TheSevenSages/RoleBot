@@ -64,26 +64,26 @@ namespace RoleBot.TTS.Inference
             try
             {
                 // Load gold dictionary
-                var goldTextAsset = Resources.Load<TextAsset>("us_gold");
+                var goldTextAsset = Resources.Load<TextAsset>("RoleBot/data/us_gold");
                 if (goldTextAsset != null)
                 {
                     s_GoldDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(goldTextAsset.text);
                 }
                 else
                 {
-                    Debug.LogError("Failed to load us_gold.json from Resources");
+                    Debug.LogError("[RoleBot][TTS] Failed to load us_gold.json from Resources");
                     s_GoldDictionary = new Dictionary<string, object>();
                 }
 
                 // Load silver dictionary
-                var silverTextAsset = Resources.Load<TextAsset>("us_silver");
+                var silverTextAsset = Resources.Load<TextAsset>("RoleBot/data/us_silver");
                 if (silverTextAsset != null)
                 {
                     s_SilverDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(silverTextAsset.text);
                 }
                 else
                 {
-                    Debug.LogError("Failed to load us_silver.json from Resources");
+                    Debug.LogError("[RoleBot][TTS] Failed to load us_silver.json from Resources");
                     s_SilverDictionary = new Dictionary<string, string>();
                 }
 
@@ -91,7 +91,7 @@ namespace RoleBot.TTS.Inference
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to load dictionaries: {ex.Message}");
+                Debug.LogError($"[RoleBot][TTS] Failed to load dictionaries: {ex.Message}");
                 s_GoldDictionary = new Dictionary<string, object>();
                 s_SilverDictionary = new Dictionary<string, string>();
                 s_DictionariesLoaded = true;
@@ -121,7 +121,7 @@ namespace RoleBot.TTS.Inference
             {
                 if (!k_PhonemeVocab.TryGetValue(character, out var value))
                 {
-                    Debug.LogWarning($"Character '{character}' not in vocabulary, skipping.");
+                    Debug.LogWarning($"[RoleBot][TTS] Character '{character}' not in vocabulary, skipping.");
                     continue;
                 }
                 tokens.Add(value);
@@ -311,7 +311,7 @@ namespace RoleBot.TTS.Inference
             // Only warn for actual words, not punctuation
             if (token.Tag != "PUNCT")
             {
-                Debug.LogWarning($"Could not find phonemes for word: '{word}' (tag: '{token.Tag}')");
+                Debug.LogWarning($"[RoleBot][TTS] Could not find phonemes for word: '{word}' (tag: '{token.Tag}')");
             }
             return "";
         }

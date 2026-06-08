@@ -62,12 +62,6 @@ namespace RoleBot.Editor
                 return;
             }
 
-            if (ResourceDownloader.HasPlaceholderUrls(m_Manifest))
-            {
-                root.Add(new HelpBox("Some resources still resolve to placeholder URLs. Edit download_manifest.json and set the 'sources' base URLs (or per-resource 'url') to your real repos before downloading.",
-                    HelpBoxMessageType.Warning));
-            }
-
             // Toolbar
             var toolbar = new VisualElement { style = { flexDirection = FlexDirection.Row, marginTop = 4, marginBottom = 6 } };
             var downloadAll = new Button(DownloadAllMissing) { text = "Download All Missing" };
@@ -190,7 +184,7 @@ namespace RoleBot.Editor
             row.button.SetEnabled(true);
         }
 
-        [MenuItem("Window/RoleBot/Download Models")]
+        [MenuItem("Window/RoleBot/Download Resources")]
         public static void OpenWindow()
         {
             var window = GetWindow<DownloadEditorWindow>();

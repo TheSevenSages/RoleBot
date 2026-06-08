@@ -30,7 +30,7 @@ namespace RoleBot.Editor
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[RoleBot] Failed to load download manifest at {ManifestPath}\n{ex.Message}");
+                Debug.LogError($"[RoleBot][Editor] Failed to load download manifest at {ManifestPath}\n{ex.Message}");
                 return null;
             }
         }
@@ -58,20 +58,6 @@ namespace RoleBot.Editor
             if (baseUrl.Length > 0 && !baseUrl.EndsWith("/"))
                 baseUrl += "/";
             return baseUrl + r.url.TrimStart('/');
-        }
-
-        /// <summary>True if any resource still resolves to an unedited placeholder (or empty) URL.</summary>
-        public static bool HasPlaceholderUrls(DownloadManifest manifest)
-        {
-            if (manifest == null || manifest.resources == null)
-                return true;
-            foreach (var r in manifest.resources)
-            {
-                string url = ResolveUrl(manifest, r);
-                if (string.IsNullOrEmpty(url) || url.Contains("YOUR_USERNAME") || url.Contains("YOUR_REPO"))
-                    return true;
-            }
-            return false;
         }
 
         public static string FormatSize(long bytes)
@@ -213,7 +199,7 @@ namespace RoleBot.Editor
             Error = error;
 
             if (!success && !string.IsNullOrEmpty(error))
-                Debug.LogError($"[RoleBot] Download failed for '{Resource.displayName}' ({_url})\n{error}");
+                Debug.LogError($"[RoleBot][Editor] Download failed for '{Resource.displayName}' ({_url})\n{error}");
 
             _onChanged?.Invoke();
         }

@@ -11,6 +11,7 @@ namespace RoleBot.TTS.Utils
 {
     public class VoiceUtils : IDisposable
     {
+        const string VOICE_PATH = "RoleBot/voices"; // Path to voices in the resources folder
         private Dictionary<string, Voice> loadedVoices; // Name to object
         private Dictionary<string, string> voicesList; // Name to path
 
@@ -18,12 +19,18 @@ namespace RoleBot.TTS.Utils
         {
             loadedVoices = new Dictionary<string, Voice>();
             voicesList = new Dictionary<string, string>();
-
+            
             // Fill voices list
             try
             {
-                TextAsset vl = Resources.Load<TextAsset>("voices_list");
-                voicesList = JsonConvert.DeserializeObject<Dictionary<string, string>>(vl.text);
+                // TextAsset vl = Resources.Load<TextAsset>("voices_list");
+                var allVoices = Resources.LoadAll<RawBytesAsset>(VOICE_PATH);
+                foreach (var v in allVoices)
+                {
+                    voicesList[v.name] = VOICE_PATH + '/' + v.name;
+                    Resources.UnloadAsset(v);
+                }
+                // voicesList = JsonConvert.DeserializeObject<Dictionary<string, string>>(vl.text);
             }
             catch(Exception ex)
             {
@@ -108,7 +115,6 @@ namespace RoleBot.TTS.Utils
 
         public void Dispose()
         {
-            Debug.Log($"Disposing of voice {Name}");
             Tensor?.Dispose();
         }
     }
