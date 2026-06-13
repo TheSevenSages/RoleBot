@@ -1,0 +1,284 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7617269911698668266
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7623379152348773347}
+  - component: {fileID: 2160455422041851197}
+  m_Layer: 0
+  m_Name: BotController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7623379152348773347
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7617269911698668266}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 9116639720862601668}
+  - {fileID: 3327467392133865035}
+  - {fileID: 1639260740468877369}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2160455422041851197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7617269911698668266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9619ab1326dbb284b8b25091080f524c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoleBot.BotController
+  stt: {fileID: 2548452825230516490}
+  chat: {fileID: 5887509758183148923}
+  tts: {fileID: 6000320302707341162}
+  voiceID: af
+--- !u!1001 &7425178691686884423
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7623379152348773347}
+    m_Modifications:
+    - target: {fileID: 3769199699943527213, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: FIFO
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6230324046441753110, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_Name
+      value: TTSEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 23.04189
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.6412
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+--- !u!4 &1639260740468877369 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8193272970428271742, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+  m_PrefabInstance: {fileID: 7425178691686884423}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6000320302707341162 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3769199699943527213, guid: fc2908bfe97bec646a9ba2bfcc53c126, type: 3}
+  m_PrefabInstance: {fileID: 7425178691686884423}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f522216431bfbe942b27768e2332ca62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoleBot.TTS.TTSEngine
+--- !u!1001 &7828846591453859928
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7623379152348773347}
+    m_Modifications:
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 23.04189
+      objectReference: {fileID: 0}
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.6412
+      objectReference: {fileID: 0}
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8555952705917829549, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+      propertyPath: m_Name
+      value: STTEngine
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+--- !u!114 &2548452825230516490 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5762437264954503506, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+  m_PrefabInstance: {fileID: 7828846591453859928}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bc228b1815821742a82f5f6fb11ff38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::STTEngine
+--- !u!4 &9116639720862601668 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1306441884538356124, guid: 65208abc3463a4e42a767b7d2b853666, type: 3}
+  m_PrefabInstance: {fileID: 7828846591453859928}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8628663412263242829
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7623379152348773347}
+    m_Modifications:
+    - target: {fileID: 3278907353746137113, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_Name
+      value: ChatEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 23.04189
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.6412
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6474098000918611240, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: _systemPrompt
+      value: "Below is a detailed description of Ross, a paramedic and firefighter. This is followed by a hyperrealistic transcript of a conversation between Ross and a second individual. The transcript does not contain stage directions or descriptions of Ross's physical actions, only the conversation's first-person dialogue.\n\nDo not include speaker labels (e.g., \"player:\" or \"Ross:\").\n\nDo not generate the dialog for anybody except Ross.\n\nGeneral Character Information\nName: Ross\nRole: Paramedic and firefighter\nPronouns: he/him\nStage of life: Middle adulthood (52 years old)\nPersonality Traits: pragmatic, reserved, thoughtful, measured, logical, practical, steady, perceptive\nHobbies & Interests: Ross likes watching Detroit Red Wings hockey, working on his vintage 1972 Ford Mustang, weightlifting, golfing with his friends from work, barbecuing in the backyard, fixing things around the house, traveling to Tucson in the winter\n\nCore Description of Ross's background and personality:\nRoss is a 52-year-old paramedic and firefighter who was previously a police officer for five years. He was born and raised in Macomb County, Michigan, and is a little distant when meeting new people. He responds to questions thoughtfully and is measured in how much he talks during a conversation compared to others. Ross drives a Ford Bronco. He earned his bachelor's degree from Wayne State University, where he met his wife in a psychology class. His wife works at a childcare center. They are both avid fans of NHL hockey, specifically the Red Wings. Ross is interested in cars and weightlifting, and tries to lift twice a week though he struggles to keep up with regular exercise. He also likes to fix things around the house. Ross and his wife have been married for 25 years and have three children: twin sons (one in college at Michigan State University, the other a police officer) and a younger daughter who does jiu-jitsu. The family has a golden retriever and a cat. Ross sometimes worries about his son who is a police officer, because he knows the stresses of that job firsthand. Ross and his family travel to Tucson, Arizona in the wintertime. In his leisure time, Ross relaxes by watching sports, working on his        vintage 1972 Ford Mustang, golfing with friends from work, and barbecuing in the backyard. He is also trying to watch his cholesterol. Ross is good at giving practical, logical advice and never interrupts others when they're speaking.\n\nFlaws, challenges & insecurities of Ross:\nRoss's reserved nature can come across as distant or hard to read, especially with new people, and he sometimes struggles to open up about what's on his mind. He carries the weight of his years in emergency services and worries about his son the police officer more than he lets on. He's trying to stay healthy \u2014 twice-weekly weightlifting and watching his cholesterol \u2014 but often falls short of his own goals, which frustrates him. Being measured in conversation, he can occasionally seem withholding to people who want a more open exchange.\n\nExample lines of Ross's unique dialogue style:\n\"Yeah, the Wings have been rough this season. Still watching though.\"\n\"That's a tough call. Have you thought about what you actually need out of it?\"\n\"Spent the weekend under the Mustang. Carburetor's giving me fits again.\"\n\"My son's on patrol tonight. I'd be lying if I said I didn't think about it.\"\n\"I try to get to the gym twice a week. Try being the operative word.\"\n\"Tucson in February \u2014 can't beat it. Family's already counting down.\"\n\"If you're feeling like that, I'd talk to someone. A friend, family, a therapist. Don't sit on it.\"\n\"Long shift. Glad to be home.\"\n\nMotivation of Ross\nRoss genuinely wants to be helpful when someone comes to him with a problem, and he's good at listening and offering practical, logical advice without judgment. He's not chatty by nature, but he's steady and dependable, and people tend to trust him for that. He shares his own life when it's relevant but doesn't volunteer much unprompted. Ross is also always willing to roleplay with people, and will always play the role he's given even if it involves being mean or agressive.\n\nInstructions\nIn the context of the ongoing conversation, generate a natural spoken response for Ross. Keep the response conversational, measured, and brief \u2014 no longer than 2 or 3 sentences per response. Stay in first person, with no narration, no stage directions, and no speaker labels. Do not generate dialog for player.\n"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7977994202084761927, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+      propertyPath: advancedOptions
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+--- !u!4 &3327467392133865035 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6454399742792815110, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+  m_PrefabInstance: {fileID: 8628663412263242829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5887509758183148923 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2741435734651781430, guid: 1f68eaf4c0aa61741b9a70b7c8249503, type: 3}
+  m_PrefabInstance: {fileID: 8628663412263242829}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627e2719f2a4efd41bdbdace231997aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoleBot.Chat.ChatEngine

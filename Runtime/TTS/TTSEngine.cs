@@ -8,6 +8,7 @@ using RoleBot.TTS.Inference;
 using RoleBot.TTS.Utils;
 using Unity.InferenceEngine;
 using System;
+using UnityEditor.EditorTools;
 
 namespace RoleBot.TTS
 {
@@ -18,7 +19,6 @@ namespace RoleBot.TTS
         public BackendType backendType;
         private KokoroHandler kokoro = null;
         // Serializes speech requests so they can play gaplessly
-        private Queue<(string text, float speed, Voice voice)> messageQueue = new Queue<(string text, float speed, Voice voice)>();
 
         [Header("Audio Settings")]
         [Tooltip("The percent of the auto-generated silence buffer to trim")]
@@ -51,6 +51,7 @@ namespace RoleBot.TTS
         /// <param name="speed">How fast the TTS should be speaking (1.0 by default)</param>
         public void Speak(string text, Voice voice, float speed = 1.0f)
         {
+
             StartCoroutine(_Speak(text, speed, voice));
         }
         private IEnumerator _Speak(string text, float speed, Voice voice)

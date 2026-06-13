@@ -37,9 +37,14 @@ namespace RoleBot.TTS.Inference
             voiceUtils = new VoiceUtils();
         }
         
+        Task tokenizing = Task.CompletedTask;
         public async Task GenerateSpeech(string text, float speed, Voice voice, Action<float[]> callback)
         {
-            var inputIds = await MisakiSharp.TokenizeGraphemes(text);
+            // Strictly enforce tokenization order because some text tokenizes much faster than others.
+            Task<int[]> myTokenize = TokenizeInOrder(text);
+            tokenizing = myTokenize;
+            var inputIds = await myTokenize;
+
             // Add the pad ids
             var paddedInputIds = new int[inputIds.Length + 2];
             paddedInputIds[0] = 0;
@@ -79,6 +84,13 @@ namespace RoleBot.TTS.Inference
             }
         }
 
+        private async Task<int[]> TokenizeInOrder(string text)
+        {
+            var predecessor = tokenizing;
+            try { await predecessor; } catch {}
+            return await MisakiSharp.TokenizeGraphemes(text);
+        }
+
         private void LoadModelIfMissing()
         {
             if (m_Model != null)
@@ -86,20 +98,6 @@ namespace RoleBot.TTS.Inference
             
             m_Model = ModelLoader.Load(m_modelAsset);
             m_Worker = new Worker(m_Model, m_BackendType);
-        }
-
-        private async Task<Tensor<float>> GetVoiceVector(Tensor<int> inputIds, Tensor<float> voice)
-        {
-            var graph = new FunctionalGraph();
-            var tokenInput = graph.AddInput<float>(voice.shape, "voice");
-            var output = tokenInput[inputIds.count];
-            graph.AddOutput(output, "output");
-            var model = graph.Compile();
-
-            using var worker = new Worker(model, m_BackendType);
-            worker.Schedule(voice);
-            using var result = worker.PeekOutput() as Tensor<float>;
-            return await result.ReadbackAndCloneAsync();
         }
 
         public void Dispose()

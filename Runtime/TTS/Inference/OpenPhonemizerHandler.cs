@@ -16,7 +16,9 @@ namespace RoleBot.TTS.Inference
         Model g2p_Model = null;
         Worker g2p_Worker = null;
         JObject tokenizer;
+
         public static BackendType g2p_BackendType = BackendType.CPU;
+
         const string G2P_MODEL_PATH = "RoleBot/models/TTS/OpenPhonemizer/"; // The path to the G2O model asset relative to the resources folder.
         const string G2P_TOKENIZER_PATH = "RoleBot/data/"; // The path to the G2O model asset relative to the resources folder.
         const int CHAR_REPEATS = 3; // Number of times in encoding a character should be repeated
