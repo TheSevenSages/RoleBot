@@ -295,26 +295,18 @@ namespace RoleBot.TTS.Inference
             // Handle numbers
             if (Regex.IsMatch(word, @"^\d+$"))
             {
-                return GetNumberPhonemes(word);
+                return await GetNumberPhonemes(word);
             }
 
             // Handle contractions first (before dictionary lookup)
-            var contractedPhonemes = HandleContractions(word);
+            var contractedPhonemes = await HandleContractions(word);
             if (!string.IsNullOrEmpty(contractedPhonemes))
             {
                 return contractedPhonemes;
             }
 
             // // Try lexicon lookup
-            var (phonemes, _) = LookupWord(word, token.Tag, null, context);
-            if (!string.IsNullOrEmpty(phonemes))
-            {
-                return phonemes;
-            }
-
-            // Try G2P model fallback, LAST RESORT!
-            using var phonemizer = new OpenPhonemizerHandler(); 
-            phonemes = await phonemizer.Phonemize(word);
+            var (phonemes, _) = await LookupWord(word, token.Tag, null, context);
             if (!string.IsNullOrEmpty(phonemes))
             {
                 return phonemes;
@@ -349,7 +341,7 @@ namespace RoleBot.TTS.Inference
             }
         }
 
-        static string GetNumberPhonemes(string number)
+        static async Task<string> GetNumberPhonemes(string number)
         {
             // Simple number to word conversion for basic cases
             var dict = new Dictionary<string, string>
@@ -374,7 +366,7 @@ namespace RoleBot.TTS.Inference
                 {
                     if (string.IsNullOrEmpty(word)) continue;
 
-                    var (phonemes, _) = LookupWord(word, "CD", null, new TokenContext());
+                    var (phonemes, _) = await LookupWord(word, "CD", null, new TokenContext());
                     if (!string.IsNullOrEmpty(phonemes))
                     {
                         phonemeParts.Add(phonemes);
@@ -406,7 +398,7 @@ namespace RoleBot.TTS.Inference
             return "";
         }
 
-        static string HandleContractions(string word)
+        static async Task<string> HandleContractions(string word)
         {
             // Normalize Unicode apostrophes to ASCII apostrophes
             word = word.Replace("\u2019", "'").Replace("'", "'");
@@ -467,23 +459,23 @@ namespace RoleBot.TTS.Inference
                 var baseWord = word.Substring(0, word.Length - 2);
 
                 // Try to look up the base word and add "s" sound
-                var (basePhonemes, _) = LookupWord(baseWord, "NN", null, new TokenContext());
+                var (basePhonemes, _) = await LookupWord(baseWord, "NN", null, new TokenContext());
                 if (!string.IsNullOrEmpty(basePhonemes))
                 {
-                    return basePhonemes + "s";
+                    return basePhonemes + (baseWord.EndsWith('s') ? "ɪz" : "s");
                 }
             }
 
             return null;
         }
 
-        static (string, int) LookupWord(string word, string tag, float? stress, TokenContext context)
+        static async Task<(string, int)> LookupWord(string word, string tag, float? stress, TokenContext context)
         {
             if (string.IsNullOrEmpty(word))
                 return ("", 0);
 
             // Handle special cases first
-            var specialCase = GetSpecialCase(word, tag, context);
+            var specialCase = await GetSpecialCase(word, tag, context);
             if (!string.IsNullOrEmpty(specialCase.Item1))
                 return specialCase;
 
@@ -541,25 +533,33 @@ namespace RoleBot.TTS.Inference
 
 
             // Handle morphological variants
-            var morphResult = TryMorphologicalLookup(word, tag, stress, context);
+            var morphResult = await TryMorphologicalLookup(word, tag, stress, context);
             if (!string.IsNullOrEmpty(morphResult.Item1))
                 return morphResult;
+
+            // Try G2P model fallback, LAST RESORT!
+            using var phonemizer = new OpenPhonemizerHandler(); 
+            string p = await phonemizer.Phonemize(word);
+            if (!string.IsNullOrEmpty(p))
+            {
+                return (p, 1);
+            }
 
             return ("", 0);
         }
 
-        static (string, int) GetSpecialCase(string word, string tag, TokenContext context)
+        static async Task<(string, int)> GetSpecialCase(string word, string tag, TokenContext context)
         {
             // Handle ADD symbols
             if (tag == "ADD" && k_AddSymbols.TryGetValue(word, out var symbol))
             {
-                return LookupWord(symbol, null, -0.5f, context);
+                return await LookupWord(symbol, null, -0.5f, context);
             }
 
             // Handle general symbols
             if (k_Symbols.TryGetValue(word, out var symbol1))
             {
-                return LookupWord(symbol1, null, null, context);
+                return await LookupWord(symbol1, null, null, context);
             }
 
             // Handle contextual words like "the", "a", "to"
@@ -587,7 +587,7 @@ namespace RoleBot.TTS.Inference
             return ("", 0);
         }
 
-        static (string, int) TryMorphologicalLookup(string word, string tag, float? stress, TokenContext context)
+        static async Task<(string, int)> TryMorphologicalLookup(string word, string tag, float? stress, TokenContext context)
         {
             // Try -s suffix (plurals, verb conjugations)
             if (word.Length > 2 && word.EndsWith('s') && !word.EndsWith("ss"))
@@ -595,7 +595,7 @@ namespace RoleBot.TTS.Inference
                 var stem = word.Substring(0, word.Length - 1);
                 if (IsKnown(stem))
                 {
-                    var (stemPhonemes, rating) = LookupWord(stem, tag, stress, context);
+                    var (stemPhonemes, rating) = await LookupWord(stem, tag, stress, context);
                     if (!string.IsNullOrEmpty(stemPhonemes))
                     {
                         return (ApplySSuffix(stemPhonemes), rating);
@@ -609,7 +609,7 @@ namespace RoleBot.TTS.Inference
                 var stem = word.Substring(0, word.Length - 2);
                 if (IsKnown(stem))
                 {
-                    var (stemPhonemes, rating) = LookupWord(stem, tag, stress, context);
+                    var (stemPhonemes, rating) = await LookupWord(stem, tag, stress, context);
                     if (!string.IsNullOrEmpty(stemPhonemes))
                     {
                         return (ApplyEdSuffix(stemPhonemes), rating);
@@ -623,7 +623,7 @@ namespace RoleBot.TTS.Inference
                 var stem = word.Substring(0, word.Length - 3);
                 if (IsKnown(stem))
                 {
-                    var (stemPhonemes, rating) = LookupWord(stem, tag, 0.5f, context);
+                    var (stemPhonemes, rating) = await LookupWord(stem, tag, 0.5f, context);
                     if (!string.IsNullOrEmpty(stemPhonemes))
                     {
                         return (ApplyIngSuffix(stemPhonemes), rating);

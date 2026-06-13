@@ -45,6 +45,8 @@ namespace RoleBot.TTS.Inference
             { '\u0027', "" },       // '  apostrophe
         };
 
+        static Dictionary<string, string> cachedWords = new Dictionary<string, string>();
+
         /// <summary>
         /// Load the model if it isn't already
         /// </summary>
@@ -70,16 +72,19 @@ namespace RoleBot.TTS.Inference
         /// </summary>
         /// <returns>A string containing the phonemes that make up the input. Or an empty string if that fails.</returns>
         public async Task<string> Phonemize(string word)
-        {            
+        {       
+            // OpenPhonemizer breaks on capital letters
+            word = word.ToLowerInvariant();
+
+            if (cachedWords.ContainsKey(word))
+                return cachedWords[word];
+
             LazyLoad();
 
             if (!tokenizer.ContainsKey("text_symbols") || !tokenizer.ContainsKey("phoneme_symbols"))
                 return "";
             JObject text_symbols = (JObject)tokenizer["text_symbols"];
             JObject phoneme_symbols = (JObject)tokenizer["phoneme_symbols"];
-
-            // OpenPhonemizer breaks on capital letters
-            word = word.ToLowerInvariant();
 
             using Tensor<int> inputIdsTensor = Encode(word, text_symbols);
             g2p_Worker.Schedule(inputIdsTensor);
@@ -107,7 +112,9 @@ namespace RoleBot.TTS.Inference
                 processedOutput[i] = best;
             }
 
-            return RemapToKokoro(Decode(processedOutput, phoneme_symbols));
+            string phonemes = RemapToKokoro(Decode(processedOutput, phoneme_symbols));
+            cachedWords[word] = phonemes;
+            return phonemes; 
         }
 
         /// <summary>
