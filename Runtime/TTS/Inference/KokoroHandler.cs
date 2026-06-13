@@ -39,7 +39,7 @@ namespace RoleBot.TTS.Inference
         
         public async Task GenerateSpeech(string text, float speed, Voice voice, Action<float[]> callback)
         {
-            var inputIds = MisakiSharp.TokenizeGraphemes(text);
+            var inputIds = await MisakiSharp.TokenizeGraphemes(text);
             // Add the pad ids
             var paddedInputIds = new int[inputIds.Length + 2];
             paddedInputIds[0] = 0;
@@ -48,7 +48,6 @@ namespace RoleBot.TTS.Inference
 
             Tensor<int> inputIdsTensor = new Tensor<int>(new TensorShape(1, paddedInputIds.Length), paddedInputIds);
             Tensor<float> speedTensor = new Tensor<float>(new TensorShape(1), new[] { speed });
-            // Tensor<float> voiceTensor = await GetVoiceVector(inputIdsTensor, voice.Tensor);
             Tensor<float> voiceTensor = voice.GetVoiceVector(paddedInputIds.Length, 512);
 
             speechRequestQueue.Enqueue((inputIdsTensor, speedTensor, voiceTensor, callback));

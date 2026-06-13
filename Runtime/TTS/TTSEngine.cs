@@ -40,6 +40,7 @@ namespace RoleBot.TTS
             audioSource.Play();
 
             kokoro = new KokoroHandler(backendType);
+            OpenPhonemizerHandler.g2p_BackendType = backendType;
         }
 
         /// <summary>

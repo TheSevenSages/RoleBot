@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Unity.InferenceEngine;
 using UnityEngine;
 
 namespace RoleBot.TTS.Inference
@@ -57,6 +59,9 @@ namespace RoleBot.TTS.Inference
             { "@", "at" }
         };
 
+        // Inference-based graphene-to-phoneme failsafe
+        static OpenPhonemizerHandler phenomizer;
+
         static void LoadDictionaries()
         {
             if (s_DictionariesLoaded) return;
@@ -98,13 +103,13 @@ namespace RoleBot.TTS.Inference
             }
         }
 
-        public static int[] TokenizeGraphemes(string inputText)
+        public static async Task<int[]> TokenizeGraphemes(string inputText)
         {
             if (string.IsNullOrEmpty(inputText))
                 return Array.Empty<int>();
 
 #if !PHONEMES
-            var phonemes = TextToPhonemes(inputText);
+            var phonemes = await TextToPhonemes(inputText);
             return Tokenize(phonemes);
 #else
             return Tokenize(inputText);
@@ -129,7 +134,7 @@ namespace RoleBot.TTS.Inference
             return tokens.ToArray();
         }
 
-        public static string TextToPhonemes(string text)
+        public static async Task<string> TextToPhonemes(string text)
         {
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
@@ -143,7 +148,7 @@ namespace RoleBot.TTS.Inference
 
             foreach (var token in tokens)
             {
-                var phonemes = GetWordPhonemes(token, context);
+                var phonemes = await GetWordPhonemes(token, context);
                 if (!string.IsNullOrEmpty(phonemes))
                 {
                     result.Add(phonemes);
@@ -268,7 +273,7 @@ namespace RoleBot.TTS.Inference
             return "NN";
         }
 
-        static string GetWordPhonemes(MToken token, TokenContext context)
+        static async Task<string> GetWordPhonemes(MToken token, TokenContext context)
         {
             var word = token.Text;
 
@@ -284,7 +289,7 @@ namespace RoleBot.TTS.Inference
             // Handle symbols
             if (k_Symbols.TryGetValue(word, out var symbol))
             {
-                return GetWordPhonemes(new MToken { Text = symbol, Tag = "NN" }, context);
+                return await GetWordPhonemes(new MToken { Text = symbol, Tag = "NN" }, context);
             }
 
             // Handle numbers
@@ -300,14 +305,22 @@ namespace RoleBot.TTS.Inference
                 return contractedPhonemes;
             }
 
-            // Try lexicon lookup
+            // // Try lexicon lookup
             var (phonemes, _) = LookupWord(word, token.Tag, null, context);
             if (!string.IsNullOrEmpty(phonemes))
             {
                 return phonemes;
             }
 
-            // If no phonemes found, return empty (no eSpeak fallback)
+            // Try G2P model fallback, LAST RESORT!
+            using var phonemizer = new OpenPhonemizerHandler(); 
+            phonemes = await phonemizer.Phonemize(word);
+            if (!string.IsNullOrEmpty(phonemes))
+            {
+                return phonemes;
+            }
+
+            // If no phonemes found, return empty
             // Only warn for actual words, not punctuation
             if (token.Tag != "PUNCT")
             {

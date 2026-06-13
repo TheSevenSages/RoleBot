@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Triggers: Tools that can be used to shape how the chatbot acts
     - Parrot
     - Stage Directions
-- Added OpenPhonemizer to the download manifest
+- Added OpenPhonemizer to the download manifest and 3rd party license sheet
 
 #### Changed
 

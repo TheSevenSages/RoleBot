@@ -22,8 +22,8 @@ Before you get started you'll need to download some extra resources.
 
 ------
 ### License
-RoleBot is distributed with the MIT License([LICENSE.md](LICENSE.md)) and uses third-party software/models with MIT and Apache licenses.
-
-Some models that may be downloaded with LLM for Unity define their own license terms, please review them before using each model.
+RoleBot is distributed with the MIT License([LICENSE.md](LICENSE.md)) and uses third-party software/models with other permissive licenses.
 
 Third-party licenses can be found in the ([Third Party Notices.md](<Third Party Notices.md>)).
+
+Some models that may be downloaded with LLM for Unity define their own license terms, please review them before using each model.
