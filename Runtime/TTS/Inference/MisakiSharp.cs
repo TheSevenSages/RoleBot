@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -56,11 +58,9 @@ namespace RoleBot.TTS.Inference
             { "%", "percent" },
             { "&", "and" },
             { "+", "plus" },
-            { "@", "at" }
+            { "@", "at" },
+            { "$", "dollars" }
         };
-
-        // Inference-based graphene-to-phoneme failsafe
-        static OpenPhonemizerHandler phenomizer;
 
         static void LoadDictionaries()
         {
@@ -116,6 +116,7 @@ namespace RoleBot.TTS.Inference
 #endif
         }
 
+
         static int[] Tokenize(string phonemes)
         {
             if (string.IsNullOrEmpty(phonemes))
@@ -163,9 +164,12 @@ namespace RoleBot.TTS.Inference
         {
             var tokens = new List<MToken>();
 
+            string folded = FoldToAscii(text);
+            string normalized = Normalize(folded);
+
             // More sophisticated regex to handle punctuation, contractions, and spacing
             // Note: Don't split on apostrophes to preserve contractions
-            var words = Regex.Split(text, @"(\s+|[.,!?;:—…""()]+)")
+            var words = Regex.Split(normalized, @"(\s+|[.,!?;:—…""()]+)")
                 .Where(w => !string.IsNullOrEmpty(w))
                 .ToArray();
 
@@ -195,6 +199,42 @@ namespace RoleBot.TTS.Inference
             }
 
             return tokens;
+        }
+
+        static string Normalize(string s)
+        {
+            string normalized = s;
+
+            // Currency
+            normalized = Regex.Replace(normalized, @"([$])(\d+)\.{0,1}(\d{0,})", m => string.Format(
+                "{0} {1} {2}",
+                m.Groups[2].Value,
+                m.Groups[3].Value == "" ? "" : "point " + string.Join(" ", m.Groups[3].Value.ToCharArray()),
+                m.Groups[1].Value                
+            ));
+
+            // Percentages
+            normalized = Regex.Replace(normalized, @"(\d+)\.{0,1}(\d{0,})(\%)", m => string.Format(
+                "{0} {1} {2}",
+                m.Groups[1].Value,
+                m.Groups[2].Value == "" ? "" : "point " + string.Join(" ", m.Groups[2].Value.ToCharArray()),
+                m.Groups[3].Value                
+            ));
+
+            Debug.Log(normalized);
+            return normalized;
+        }
+
+        static string FoldToAscii(string s)
+        {
+            // Strip diacritics from everything that does decompose (à é ñ š å ...).
+            var decomposed = s.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(decomposed.Length);
+            foreach (char c in decomposed)
+                if (char.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    sb.Append(c);
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
         }
 
         static List<string> SplitWordWithPunctuation(string word)
@@ -395,7 +435,8 @@ namespace RoleBot.TTS.Inference
             if (number < 100) return new[] { "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" }[number / 10] + (number % 10 != 0 ? " " + ConvertNumberToWords(number % 10) : "");
             if (number < 1000) return ConvertNumberToWords(number / 100) + " hundred" + (number % 100 != 0 ? " " + ConvertNumberToWords(number % 100) : "");
             if (number < 1000000) return ConvertNumberToWords(number / 1000) + " thousand" + (number % 1000 != 0 ? " " + ConvertNumberToWords(number % 1000) : "");
-            return "";
+            if (number < 1000000000) return ConvertNumberToWords(number / 1000000) + " million" + (number % 1000000 != 0 ? " " + ConvertNumberToWords(number % 1000000) : "");
+            return ConvertNumberToWords(number / 1000000000) + " billion" + (number % 1000000000 != 0 ? " " + ConvertNumberToWords(number % 1000000000) : "");
         }
 
         static async Task<string> HandleContractions(string word)

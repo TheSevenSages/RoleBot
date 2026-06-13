@@ -87,6 +87,9 @@ namespace RoleBot.TTS.Inference
             JObject phoneme_symbols = (JObject)tokenizer["phoneme_symbols"];
 
             using Tensor<int> inputIdsTensor = Encode(word, text_symbols);
+            if (inputIdsTensor == null)
+                return "";
+
             g2p_Worker.Schedule(inputIdsTensor);
             using Tensor<float> result = g2p_Worker.PeekOutput() as Tensor<float>;
             using Tensor<float> output = await result.ReadbackAndCloneAsync();
@@ -126,6 +129,8 @@ namespace RoleBot.TTS.Inference
             var inputIds = new List<int>() { START_ID };
             foreach (char c in word)
             {
+                if (c == '-')
+                    continue;
                 int id = -1;
                 try
                 {
@@ -134,7 +139,7 @@ namespace RoleBot.TTS.Inference
                 catch 
                 {
                     Debug.LogWarning($"[RoleBot][TTS] OpenPhenomizer does not recognize character \"{c}\" in {word}");
-                    continue;
+                    return null;
                 }
 
                 if (id != -1)
