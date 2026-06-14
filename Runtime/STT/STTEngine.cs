@@ -11,6 +11,7 @@ using System.Linq;
 using UnityEngine.Events;
 using Unity.Mathematics;
 using System;
+using System.Text.RegularExpressions;
 
 namespace RoleBot.STT
 {
@@ -21,6 +22,8 @@ namespace RoleBot.STT
 
         [Header("Inference")]
         public BackendType backendType = BackendType.CPU;
+        [Tooltip("If true the STTEngine will filter tags (coughing, blank_audio, etc...) from the output.")]
+        [SerializeField] bool filterTags = true;
 
         [Header("Voice Activity Detection")]
         [Tooltip("If true the STTEngine will automatically filter the audio that gets sent to inference based on if speech is detected or not.")]
@@ -31,7 +34,7 @@ namespace RoleBot.STT
         public float speechBufferTime = 3.0f;
 
         [Header("Audio")]
-        [SerializeField] private AudioSource Echo;
+        [SerializeField] AudioSource echo;
 
         [Header("Events")]
         public UnityEvent<string> onTranscriptionUpdated;
@@ -96,6 +99,9 @@ namespace RoleBot.STT
 
             outputString += s;
 
+            if (filterTags)
+                outputString = Regex.Replace(outputString, @"\s{0,}[[,{,(]\S+[],},)]\s{0,}", "");
+
             if (state == ENGINE_STATES.FINALIZING && numClipsBeingTranscribed == 0)
                 CompleteTranscription();
             else
@@ -150,11 +156,11 @@ namespace RoleBot.STT
 
                             float[] allSamplesArr = allSamples.ToArray();
 
-                            if (Echo != null)
+                            if (echo != null)
                             {
-                                Echo.clip = AudioClip.Create("Echo", allSamplesArr.Length, 1, 16000, false);
-                                Echo.clip.SetData(allSamplesArr, 0);
-                                Echo.Play();
+                                echo.clip = AudioClip.Create("Echo", allSamplesArr.Length, 1, 16000, false);
+                                echo.clip.SetData(allSamplesArr, 0);
+                                echo.Play();
                             }
 
                             SendSamplesForTranscription(UpdateTranscription, allSamplesArr, true);

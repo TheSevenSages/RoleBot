@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -----
 
-## [0.11.0] - ????-??-??
+## [1.0.0] - ????-??-??
 
 ### [TITLE].
 
@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - TTS can now pronounce words that aren't even in its dictionary because of a new failsafe in the graphene-to-phoneme pipeline.
     - This causes text with unknown words to take much longer to tokenize, so tokenization order is now strictly enforced in KokoroHandler.GenerateSpeech.
 - Added OpenPhonemizer to the download manifest and 3rd party license sheet
+- Added option to remove audio tags (coughing, blank audio, etc...) from STT.
 
 -----
 
