@@ -23,7 +23,7 @@ namespace RoleBot.Chat
         [Header("Inference")]
         [Tooltip("Process the system prompt on awake for faster initial processing time")]
         [SerializeField] bool warmupLLM = true;
-        public UnityEvent onWarmupComplete;
+        private UnityEvent onWarmupComplete = new UnityEvent();
 
         [Header("Behavior")]
         [TextArea(5, 10)]
@@ -72,6 +72,21 @@ namespace RoleBot.Chat
         }
 
         /// <summary>
+        /// Executes the given action when the LLM becomes warmed up, or immediately if it already is.
+        /// </summary>
+        public void ExecuteWhenWarmupComplete(UnityAction onCompletion)
+        {
+#if LLMUNITY_PRESENT
+            if (warmedUp || !warmupLLM)
+            {
+                onCompletion.Invoke();
+                return;
+            }
+            onWarmupComplete.AddListener(onCompletion);
+#endif
+        }
+
+        /// <summary>
         /// Processes a user query asynchronously and generates an AI response using conversation context.
         /// The query and response are automatically added to chat history if specified.
         /// </summary>
@@ -80,21 +95,21 @@ namespace RoleBot.Chat
         /// <param name="completionCallback">Optional callback when response is complete</param>
         /// <param name="addToHistory">Whether to add the exchange to conversation history</param>
         /// <returns>Task that returns the AI assistant's response, null if failed.</returns>
-        public async Task<string> Chat(string message, Action<string> partialCallback = null, 
-        Action completionCallback = null, bool addToHistory = true)
-        {
-#if LLMUNITY_PRESENT
-            if (!warmedUp)
+            public async Task<string> Chat(string message, Action<string> partialCallback = null, 
+            Action completionCallback = null, bool addToHistory = true)
             {
-                completionCallback?.Invoke();
-                Debug.LogWarning($"[RoleBot][Chat] LLM is not warmed up yet, dropping message {message}");
+    #if LLMUNITY_PRESENT
+                if (!warmedUp)
+                {
+                    completionCallback?.Invoke();
+                    Debug.LogWarning($"[RoleBot][Chat] LLM is not warmed up yet, dropping message {message}");
+                    return await Task.FromResult<string>(null);
+                }
+                return await agent.Chat(message, partialCallback, completionCallback, addToHistory);
+    #else
+                Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
                 return await Task.FromResult<string>(null);
+    #endif
             }
-            return await agent.Chat(message, partialCallback, completionCallback, addToHistory);
-#else
-            Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
-            return await Task.FromResult<string>(null);
-#endif
-        }
     }
 }

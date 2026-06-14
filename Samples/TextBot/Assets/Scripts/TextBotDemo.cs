@@ -28,6 +28,10 @@ namespace RoleBot.Chat.Demos
             {
                _ = SendChatMessage(inputField.text); 
             });
+            chatEngine.ExecuteWhenWarmupComplete(() =>
+            {
+                Debug.Log("Warmup Complete!");
+            });
         }
 
         async Task SendChatMessage(string message)
