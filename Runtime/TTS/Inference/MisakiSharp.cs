@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Unity.InferenceEngine;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace RoleBot.TTS.Inference
@@ -205,9 +206,13 @@ namespace RoleBot.TTS.Inference
         {
             string normalized = s;
 
+            // Numbers
+            // American number seperators
+            normalized = Regex.Replace(normalized, @"[,]\d+", m => m.Value.Replace(",", ""));
+
             // Currency
             normalized = Regex.Replace(normalized, @"([$])(\d+)\.{0,1}(\d{0,})", m => string.Format(
-                "{0} {1} {2}",
+                " {0} {1} {2} ",
                 m.Groups[2].Value,
                 m.Groups[3].Value == "" ? "" : "point " + string.Join(" ", m.Groups[3].Value.ToCharArray()),
                 m.Groups[1].Value                
@@ -215,13 +220,27 @@ namespace RoleBot.TTS.Inference
 
             // Percentages
             normalized = Regex.Replace(normalized, @"(\d+)\.{0,1}(\d{0,})(\%)", m => string.Format(
-                "{0} {1} {2}",
+                " {0} {1} {2} ",
                 m.Groups[1].Value,
                 m.Groups[2].Value == "" ? "" : "point " + string.Join(" ", m.Groups[2].Value.ToCharArray()),
                 m.Groups[3].Value                
             ));
 
-            Debug.Log(normalized);
+            // Decimals (that aren't specially formatted)
+            normalized = Regex.Replace(normalized, @"(\d+)[.](\d+)", m => string.Format(
+                " {0} {1} ",
+                m.Groups[1].Value,
+                m.Groups[2].Value == "" ? "" : "point " + string.Join(" ", m.Groups[2].Value.ToCharArray())         
+            ));
+
+            // Ensure numbers are their own words
+            normalized = Regex.Replace(normalized, @"(\D{0,})(\d+)(\D{0,})", m => string.Format(
+                "{0} {1} {2}",
+                m.Groups[1].Value,
+                m.Groups[2].Value,
+                m.Groups[3].Value         
+            ));
+
             return normalized;
         }
 
@@ -337,7 +356,7 @@ namespace RoleBot.TTS.Inference
             {
                 return await GetNumberPhonemes(word);
             }
-
+    
             // Handle contractions first (before dictionary lookup)
             var contractedPhonemes = await HandleContractions(word);
             if (!string.IsNullOrEmpty(contractedPhonemes))
@@ -395,7 +414,7 @@ namespace RoleBot.TTS.Inference
                 return numberPhonemes;
 
             // For larger numbers, try to convert to words and look up each word
-            var numberWord = ConvertNumberToWords(int.Parse(number));
+            var numberWord = ConvertNumberToWords(number);
             if (!string.IsNullOrEmpty(numberWord))
             {
                 // Split multi-word numbers and look up each part
@@ -427,6 +446,18 @@ namespace RoleBot.TTS.Inference
             return "";
         }
 
+        static string ConvertNumberToWords(string number)
+        {
+            if (number.Length > 9)
+            {
+                string top = ConvertNumberToWords(number.Substring(0, number.Length - 9));
+                string bottom = ConvertNumberToWords(number.Substring(9));
+                string combined = (top == "zero" ? "" : top + " billion") + (bottom == "zero" ? "" : " " + bottom);
+                return combined;
+            }
+            else
+                return ConvertNumberToWords(int.Parse(number));
+        }
         static string ConvertNumberToWords(int number)
         {
             if (number < 0) return "minus " + ConvertNumberToWords(-number);

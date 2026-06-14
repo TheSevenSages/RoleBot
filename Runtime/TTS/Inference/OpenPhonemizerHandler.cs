@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace RoleBot.TTS.Inference
 {
@@ -45,6 +46,20 @@ namespace RoleBot.TTS.Inference
             { '\u0027', "" },       // '  apostrophe
         };
 
+        static readonly Dictionary<char, string> k_Numbers = new()
+        {
+            {'0', "zero"},
+            {'1', "one"},
+            {'2', "two"},
+            {'3', "three"},
+            {'4', "four"},
+            {'5', "five"},
+            {'6', "six"},
+            {'7', "seven"},
+            {'8', "eight"},
+            {'9', "nine"}
+        };
+
         static Dictionary<string, string> cachedWords = new Dictionary<string, string>();
 
         /// <summary>
@@ -75,6 +90,9 @@ namespace RoleBot.TTS.Inference
         {       
             // OpenPhonemizer breaks on capital letters
             word = word.ToLowerInvariant();
+
+            // If any numbers get through replace them with words.
+            word = Regex.Replace(word, @"\d", m => k_Numbers[m.Value[0]]);
 
             if (cachedWords.ContainsKey(word))
                 return cachedWords[word];
@@ -129,8 +147,6 @@ namespace RoleBot.TTS.Inference
             var inputIds = new List<int>() { START_ID };
             foreach (char c in word)
             {
-                if (c == '-')
-                    continue;
                 int id = -1;
                 try
                 {
@@ -139,7 +155,7 @@ namespace RoleBot.TTS.Inference
                 catch 
                 {
                     Debug.LogWarning($"[RoleBot][TTS] OpenPhenomizer does not recognize character \"{c}\" in {word}");
-                    return null;
+                    continue;
                 }
 
                 if (id != -1)
