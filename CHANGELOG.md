@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -----
 
-## [1.0.0] - ????-??-??
+## [0.11.0] - ????-??-??
 
 ### [TITLE].
 
@@ -14,11 +14,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Triggers: Tools that can be used to shape how the chatbot acts
     - Parrot
-    - Stage Directions
+        - Forces the chatbot to repeat a given phrase verbatim, and adds it to the chat history.
+- Add trigger samples
 
 #### Changed
 
-- Increased efficiency of LLM with large system prompts
+- [TODO] Add public methods in ChatEngine add a message from the llm or user to the chat history. 
+- [TODO] Add "stop response on interrupt" to textbot and speechbot samples
+- Added average response time to textbot and speechbot samples.
 - TTS can now pronounce words that aren't even in its dictionary because of a new failsafe in the graphene-to-phoneme pipeline.
     - This causes text with unknown words to take much longer to tokenize, so tokenization order is now strictly enforced in KokoroHandler.GenerateSpeech.
 - Added OpenPhonemizer to the download manifest and 3rd party license sheet
