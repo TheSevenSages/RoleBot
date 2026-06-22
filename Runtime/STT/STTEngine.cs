@@ -36,9 +36,8 @@ namespace RoleBot.STT
         [Header("Audio")]
         [SerializeField] AudioSource echo;
 
-        [Header("Events")]
-        public UnityEvent<string> onTranscriptionUpdated;
-        public UnityEvent<string> onTranscriptionCompleted;
+        private UnityEvent<string> onTranscriptionUpdated = new UnityEvent<string>();
+        private UnityEvent<string> onTranscriptionCompleted = new UnityEvent<string>();
 
         private Queue<float[]> sampleQueue = new Queue<float[]>();
         private float lastSpeechTime = math.INFINITY;
@@ -74,6 +73,23 @@ namespace RoleBot.STT
             serializer.EndMicrophoneCapture();
             state = ENGINE_STATES.FINALIZING;
         }
+
+        /// <summary>
+        /// Invokes the given action whenever a transcription is updated.
+        /// </summary>
+        public void OnTranscriptionUpdated(UnityAction<string> action) { onTranscriptionUpdated.AddListener(action); }
+        /// <summary>
+        /// Stops the given action from listening to when transcriptions are updated.
+        /// </summary>
+        public void RemoveOnTranscriptionUpdated(UnityAction<string> action) { onTranscriptionUpdated.RemoveListener(action); }
+        /// <summary>
+        /// Invokes the given action whenever a transcription is completed.
+        /// </summary>
+        public void OnTranscriptionCompleted(UnityAction<string> action) { onTranscriptionCompleted.AddListener(action); }
+        /// <summary>
+        /// Stops the given action from listening to when transcriptions are completed.
+        /// </summary>
+        public void RemoveOnTranscriptionCompleted(UnityAction<string> action) { onTranscriptionCompleted.RemoveListener(action); }
 
         /// <summary>
         /// Loads whisper and the serializer.

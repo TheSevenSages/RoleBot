@@ -19,13 +19,13 @@ namespace RoleBot.STT.Demos
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
-            sttEngine.onTranscriptionUpdated.AddListener((string output) =>
+            sttEngine.OnTranscriptionUpdated((string output) =>
             {
                 transcriptionOutput.text = output + "...";
             });
 
 
-            sttEngine.onTranscriptionCompleted.AddListener((string output) =>
+            sttEngine.OnTranscriptionCompleted((string output) =>
             {
                 transcriptionOutput.text = output;
             });
