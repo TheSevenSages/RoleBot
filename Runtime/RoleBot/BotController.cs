@@ -29,7 +29,7 @@ namespace RoleBot
         [SerializeField] private TTSEngine tts;
 
         [Header("Role")]
-        [SerializeField] private string voiceID;
+        public string voiceID;
 
         [Header("Events")]
         public UnityEvent<string> onUserMessageSent;

@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace RoleBot.STT.Demos
+namespace RoleBot.STT.Samples
 {
     public class RTSample : MonoBehaviour
     {

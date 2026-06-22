@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace RoleBot.Chat.Demos
+namespace RoleBot.Chat.Samples
 {
     public class TextBotDemo : MonoBehaviour
     {
