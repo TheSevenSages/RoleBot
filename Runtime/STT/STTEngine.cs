@@ -36,6 +36,7 @@ namespace RoleBot.STT
         [Header("Audio")]
         [SerializeField] AudioSource echo;
 
+        private UnityEvent onSpeechDetected = new UnityEvent();
         private UnityEvent<string> onTranscriptionUpdated = new UnityEvent<string>();
         private UnityEvent<string> onTranscriptionCompleted = new UnityEvent<string>();
 
@@ -60,7 +61,7 @@ namespace RoleBot.STT
         /// <param name="sampleRate">Optional, the sample rate to record the mic output at.</param>
         public void MicOn(int micIndex = 0, int sampleRate = 16000)
         {
-            // Ensure that whisper and the serializer are availble when needed, even if STTEngine hasn't had a chance to "Awake" yet.
+            // Ensure that whisper and the serializer are available when needed, even if STTEngine hasn't had a chance to "Awake" yet.
             LazyLoad();
             serializer.StartMicrophoneCapture(ProcessMicChunk, micIndex, sampleRate);
         }
@@ -72,8 +73,21 @@ namespace RoleBot.STT
         {
             serializer.EndMicrophoneCapture();
             state = ENGINE_STATES.FINALIZING;
-        }
+        } 
 
+        // ----------
+        // Events
+        // ----------
+
+        /// <summary>
+        /// Invokes the given action when speech is detected in the microphone input.
+        /// NOTE: Action is invoked even when VAD is disabled.
+        /// </summary>
+        public void OnSpeechDetected(UnityAction action) { onSpeechDetected.AddListener(action); }
+        /// <summary>
+        /// Stops the given action from being invoked when speech is detected in the microphone input.
+        /// </summary>
+        public void RemoveOnSpeechDetected(UnityAction action) { onSpeechDetected.AddListener(action); }
         /// <summary>
         /// Invokes the given action whenever a transcription is updated.
         /// </summary>
@@ -143,12 +157,16 @@ namespace RoleBot.STT
         {
             if (!useVAD)
             {
+                if (IsVoiceActive(samples, VADThreshold))
+                    onSpeechDetected.Invoke();
+
                 SendSamplesForTranscription(UpdateTranscription, samples, true);
             }
             else
             {
                 if (IsVoiceActive(samples, VADThreshold))
                 {
+                    onSpeechDetected.Invoke();
                     lock (sampleQueue) { sampleQueue.Enqueue(samples); }
                     lastSpeechTime = Time.time;
                 }

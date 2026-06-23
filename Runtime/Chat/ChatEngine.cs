@@ -119,10 +119,32 @@ namespace RoleBot.Chat
         /// <param name="message">The message to add to the chat history.</param>
         public void AddMessageToChatHistory(bool fromAI, string message)
         {
+    #if LLMUNITY_PRESENT
+            if (agent == null)
+                return;
+
             if (fromAI)
                 agent.AddAssistantMessage(message);
             else
                 agent.AddUserMessage(message);
+    #else
+            Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+    #endif
+        }
+
+        /// <summary>
+        /// Cancels any active responses.
+        /// </summary>
+        public void CancelCurrentResponse()
+        {
+    #if LLMUNITY_PRESENT
+            if (agent == null)
+                return;
+            
+            agent.CancelRequests();
+    #else
+            Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+    #endif
         }
     }
 }

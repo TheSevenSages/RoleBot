@@ -30,6 +30,8 @@ namespace RoleBot
 
         [Header("Role")]
         public string voiceID;
+        [Tooltip("If true user speech will cancel ongoing messages from the AI.")]
+        public bool allowInterrupt = true; 
 
         [Header("Events")]
         public UnityEvent<string> onUserMessageSent;
@@ -47,6 +49,18 @@ namespace RoleBot
         void Start()
         {
             stt.OnTranscriptionCompleted(s => { _ = UserDoneSpeaking(s); });
+
+            // Allow user to interrupt the chatbot while it's talking.
+            stt.OnSpeechDetected( () => {
+                if (allowInterrupt)
+                {
+                    // Cancel LLM response
+                    chat.CancelCurrentResponse();
+
+                    // Cancel any upcoming speech
+                    tts.ClearAudio();
+                }
+            });
         }
 
         async Task UserDoneSpeaking(string message)
