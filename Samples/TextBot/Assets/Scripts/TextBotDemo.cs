@@ -1,8 +1,11 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace RoleBot.Chat.Demos
+namespace RoleBot.Chat.Samples
 {
     public class TextBotDemo : MonoBehaviour
     {
@@ -13,17 +16,25 @@ namespace RoleBot.Chat.Demos
         public GameObject ScrollContent;
         public GameObject AIMsgPrefab;
         public GameObject USRMsgPrefab;
+        public TMP_Text avgResponseTime;
+
+        private List<float> responseTimes = new List<float>();
+
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
-            inputField.onSubmit.AddListener(SendChatMessage);
+            inputField.onSubmit.AddListener((string s) => { _ = SendChatMessage(s); } );
             button.onClick.AddListener(() =>
             {
-               SendChatMessage(inputField.text); 
+               _ = SendChatMessage(inputField.text); 
+            });
+            chatEngine.ExecuteWhenWarmupComplete(() =>
+            {
+                Debug.Log("Warmup Complete!");
             });
         }
 
-        void SendChatMessage(string message)
+        async Task SendChatMessage(string message)
         {
             if (!chatEngine)
                 return;
@@ -36,14 +47,34 @@ namespace RoleBot.Chat.Demos
             usrmsg.ForceMeshUpdate();
             
             scrollRect.velocity = new Vector2(0.0f, 1000.0f);
-            
-             var aimsg = Instantiate(AIMsgPrefab, ScrollContent.transform).GetComponentInChildren<TMP_Text>();
-            _ = chatEngine.Chat(message, (string partialmsg) =>
+
+            float sendMsg = Time.time;
+            float beginResponse = 0.0f;
+
+            string response = "";
+
+            var aimsgGO = Instantiate(AIMsgPrefab, ScrollContent.transform);
+            var aimsg = aimsgGO.GetComponentInChildren<TMP_Text>();
+            aimsg.text = "...";
+            var msg = await chatEngine.Chat(message, (string partialmsg) =>
             {
-                aimsg.text = partialmsg;
+                response = partialmsg;
+                if (beginResponse == 0.0f)
+                {
+                    beginResponse = Time.time;
+                    responseTimes.Add(beginResponse - sendMsg);
+                    avgResponseTime.text = (responseTimes.Sum() / responseTimes.Count).ToString("0.00") + "s";
+                }
+
+                aimsg.text = $"Response Time: ({(beginResponse - sendMsg).ToString("0.00")}s)\n" +
+                partialmsg;
+
                 aimsg.ForceMeshUpdate();
                 scrollRect.velocity = new Vector2(0.0f, 1000.0f);
             });
+
+            if (msg == null)
+                Destroy(aimsgGO);
         }
     }
 }

@@ -1,9 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Unity.InferenceEngine;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace RoleBot.TTS.Inference
@@ -54,7 +59,8 @@ namespace RoleBot.TTS.Inference
             { "%", "percent" },
             { "&", "and" },
             { "+", "plus" },
-            { "@", "at" }
+            { "@", "at" },
+            { "$", "dollars" }
         };
 
         static void LoadDictionaries()
@@ -98,18 +104,19 @@ namespace RoleBot.TTS.Inference
             }
         }
 
-        public static int[] TokenizeGraphemes(string inputText)
+        public static async Task<int[]> TokenizeGraphemes(string inputText)
         {
             if (string.IsNullOrEmpty(inputText))
                 return Array.Empty<int>();
 
 #if !PHONEMES
-            var phonemes = TextToPhonemes(inputText);
+            var phonemes = await TextToPhonemes(inputText);
             return Tokenize(phonemes);
 #else
             return Tokenize(inputText);
 #endif
         }
+
 
         static int[] Tokenize(string phonemes)
         {
@@ -129,7 +136,7 @@ namespace RoleBot.TTS.Inference
             return tokens.ToArray();
         }
 
-        public static string TextToPhonemes(string text)
+        public static async Task<string> TextToPhonemes(string text)
         {
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
@@ -143,7 +150,7 @@ namespace RoleBot.TTS.Inference
 
             foreach (var token in tokens)
             {
-                var phonemes = GetWordPhonemes(token, context);
+                var phonemes = await GetWordPhonemes(token, context);
                 if (!string.IsNullOrEmpty(phonemes))
                 {
                     result.Add(phonemes);
@@ -158,9 +165,12 @@ namespace RoleBot.TTS.Inference
         {
             var tokens = new List<MToken>();
 
+            string folded = FoldToAscii(text);
+            string normalized = Normalize(folded);
+
             // More sophisticated regex to handle punctuation, contractions, and spacing
             // Note: Don't split on apostrophes to preserve contractions
-            var words = Regex.Split(text, @"(\s+|[.,!?;:—…""()]+)")
+            var words = Regex.Split(normalized, @"(\s+|[.,!?;:—…""()]+)")
                 .Where(w => !string.IsNullOrEmpty(w))
                 .ToArray();
 
@@ -190,6 +200,60 @@ namespace RoleBot.TTS.Inference
             }
 
             return tokens;
+        }
+
+        static string Normalize(string s)
+        {
+            string normalized = s;
+
+            // Numbers
+            // American number seperators
+            normalized = Regex.Replace(normalized, @"[,]\d+", m => m.Value.Replace(",", ""));
+
+            // Currency
+            normalized = Regex.Replace(normalized, @"([$])(\d+)\.{0,1}(\d{0,})", m => string.Format(
+                " {0} {1} {2} ",
+                m.Groups[2].Value,
+                m.Groups[3].Value == "" ? "" : "point " + string.Join(" ", m.Groups[3].Value.ToCharArray()),
+                m.Groups[1].Value                
+            ));
+
+            // Percentages
+            normalized = Regex.Replace(normalized, @"(\d+)\.{0,1}(\d{0,})(\%)", m => string.Format(
+                " {0} {1} {2} ",
+                m.Groups[1].Value,
+                m.Groups[2].Value == "" ? "" : "point " + string.Join(" ", m.Groups[2].Value.ToCharArray()),
+                m.Groups[3].Value                
+            ));
+
+            // Decimals (that aren't specially formatted)
+            normalized = Regex.Replace(normalized, @"(\d+)[.](\d+)", m => string.Format(
+                " {0} {1} ",
+                m.Groups[1].Value,
+                m.Groups[2].Value == "" ? "" : "point " + string.Join(" ", m.Groups[2].Value.ToCharArray())         
+            ));
+
+            // Ensure numbers are their own words
+            normalized = Regex.Replace(normalized, @"(\D{0,})(\d+)(\D{0,})", m => string.Format(
+                "{0} {1} {2}",
+                m.Groups[1].Value,
+                m.Groups[2].Value,
+                m.Groups[3].Value         
+            ));
+
+            return normalized;
+        }
+
+        static string FoldToAscii(string s)
+        {
+            // Strip diacritics from everything that does decompose (à é ñ š å ...).
+            var decomposed = s.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(decomposed.Length);
+            foreach (char c in decomposed)
+                if (char.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    sb.Append(c);
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
         }
 
         static List<string> SplitWordWithPunctuation(string word)
@@ -268,7 +332,7 @@ namespace RoleBot.TTS.Inference
             return "NN";
         }
 
-        static string GetWordPhonemes(MToken token, TokenContext context)
+        static async Task<string> GetWordPhonemes(MToken token, TokenContext context)
         {
             var word = token.Text;
 
@@ -284,30 +348,30 @@ namespace RoleBot.TTS.Inference
             // Handle symbols
             if (k_Symbols.TryGetValue(word, out var symbol))
             {
-                return GetWordPhonemes(new MToken { Text = symbol, Tag = "NN" }, context);
+                return await GetWordPhonemes(new MToken { Text = symbol, Tag = "NN" }, context);
             }
 
             // Handle numbers
             if (Regex.IsMatch(word, @"^\d+$"))
             {
-                return GetNumberPhonemes(word);
+                return await GetNumberPhonemes(word);
             }
-
+    
             // Handle contractions first (before dictionary lookup)
-            var contractedPhonemes = HandleContractions(word);
+            var contractedPhonemes = await HandleContractions(word);
             if (!string.IsNullOrEmpty(contractedPhonemes))
             {
                 return contractedPhonemes;
             }
 
-            // Try lexicon lookup
-            var (phonemes, _) = LookupWord(word, token.Tag, null, context);
+            // // Try lexicon lookup
+            var (phonemes, _) = await LookupWord(word, token.Tag, null, context);
             if (!string.IsNullOrEmpty(phonemes))
             {
                 return phonemes;
             }
 
-            // If no phonemes found, return empty (no eSpeak fallback)
+            // If no phonemes found, return empty
             // Only warn for actual words, not punctuation
             if (token.Tag != "PUNCT")
             {
@@ -336,7 +400,7 @@ namespace RoleBot.TTS.Inference
             }
         }
 
-        static string GetNumberPhonemes(string number)
+        static async Task<string> GetNumberPhonemes(string number)
         {
             // Simple number to word conversion for basic cases
             var dict = new Dictionary<string, string>
@@ -350,7 +414,7 @@ namespace RoleBot.TTS.Inference
                 return numberPhonemes;
 
             // For larger numbers, try to convert to words and look up each word
-            var numberWord = ConvertNumberToWords(int.Parse(number));
+            var numberWord = ConvertNumberToWords(number);
             if (!string.IsNullOrEmpty(numberWord))
             {
                 // Split multi-word numbers and look up each part
@@ -361,7 +425,7 @@ namespace RoleBot.TTS.Inference
                 {
                     if (string.IsNullOrEmpty(word)) continue;
 
-                    var (phonemes, _) = LookupWord(word, "CD", null, new TokenContext());
+                    var (phonemes, _) = await LookupWord(word, "CD", null, new TokenContext());
                     if (!string.IsNullOrEmpty(phonemes))
                     {
                         phonemeParts.Add(phonemes);
@@ -382,6 +446,18 @@ namespace RoleBot.TTS.Inference
             return "";
         }
 
+        static string ConvertNumberToWords(string number)
+        {
+            if (number.Length > 9)
+            {
+                string top = ConvertNumberToWords(number.Substring(0, number.Length - 9));
+                string bottom = ConvertNumberToWords(number.Substring(9));
+                string combined = (top == "zero" ? "" : top + " billion") + (bottom == "zero" ? "" : " " + bottom);
+                return combined;
+            }
+            else
+                return ConvertNumberToWords(int.Parse(number));
+        }
         static string ConvertNumberToWords(int number)
         {
             if (number < 0) return "minus " + ConvertNumberToWords(-number);
@@ -390,10 +466,11 @@ namespace RoleBot.TTS.Inference
             if (number < 100) return new[] { "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" }[number / 10] + (number % 10 != 0 ? " " + ConvertNumberToWords(number % 10) : "");
             if (number < 1000) return ConvertNumberToWords(number / 100) + " hundred" + (number % 100 != 0 ? " " + ConvertNumberToWords(number % 100) : "");
             if (number < 1000000) return ConvertNumberToWords(number / 1000) + " thousand" + (number % 1000 != 0 ? " " + ConvertNumberToWords(number % 1000) : "");
-            return "";
+            if (number < 1000000000) return ConvertNumberToWords(number / 1000000) + " million" + (number % 1000000 != 0 ? " " + ConvertNumberToWords(number % 1000000) : "");
+            return ConvertNumberToWords(number / 1000000000) + " billion" + (number % 1000000000 != 0 ? " " + ConvertNumberToWords(number % 1000000000) : "");
         }
 
-        static string HandleContractions(string word)
+        static async Task<string> HandleContractions(string word)
         {
             // Normalize Unicode apostrophes to ASCII apostrophes
             word = word.Replace("\u2019", "'").Replace("'", "'");
@@ -454,23 +531,23 @@ namespace RoleBot.TTS.Inference
                 var baseWord = word.Substring(0, word.Length - 2);
 
                 // Try to look up the base word and add "s" sound
-                var (basePhonemes, _) = LookupWord(baseWord, "NN", null, new TokenContext());
+                var (basePhonemes, _) = await LookupWord(baseWord, "NN", null, new TokenContext());
                 if (!string.IsNullOrEmpty(basePhonemes))
                 {
-                    return basePhonemes + "s";
+                    return basePhonemes + (baseWord.EndsWith('s') ? "ɪz" : "s");
                 }
             }
 
             return null;
         }
 
-        static (string, int) LookupWord(string word, string tag, float? stress, TokenContext context)
+        static async Task<(string, int)> LookupWord(string word, string tag, float? stress, TokenContext context)
         {
             if (string.IsNullOrEmpty(word))
                 return ("", 0);
 
             // Handle special cases first
-            var specialCase = GetSpecialCase(word, tag, context);
+            var specialCase = await GetSpecialCase(word, tag, context);
             if (!string.IsNullOrEmpty(specialCase.Item1))
                 return specialCase;
 
@@ -528,25 +605,33 @@ namespace RoleBot.TTS.Inference
 
 
             // Handle morphological variants
-            var morphResult = TryMorphologicalLookup(word, tag, stress, context);
+            var morphResult = await TryMorphologicalLookup(word, tag, stress, context);
             if (!string.IsNullOrEmpty(morphResult.Item1))
                 return morphResult;
+
+            // Try G2P model fallback, LAST RESORT!
+            using var phonemizer = new OpenPhonemizerHandler(); 
+            string p = await phonemizer.Phonemize(word);
+            if (!string.IsNullOrEmpty(p))
+            {
+                return (p, 1);
+            }
 
             return ("", 0);
         }
 
-        static (string, int) GetSpecialCase(string word, string tag, TokenContext context)
+        static async Task<(string, int)> GetSpecialCase(string word, string tag, TokenContext context)
         {
             // Handle ADD symbols
             if (tag == "ADD" && k_AddSymbols.TryGetValue(word, out var symbol))
             {
-                return LookupWord(symbol, null, -0.5f, context);
+                return await LookupWord(symbol, null, -0.5f, context);
             }
 
             // Handle general symbols
             if (k_Symbols.TryGetValue(word, out var symbol1))
             {
-                return LookupWord(symbol1, null, null, context);
+                return await LookupWord(symbol1, null, null, context);
             }
 
             // Handle contextual words like "the", "a", "to"
@@ -574,7 +659,7 @@ namespace RoleBot.TTS.Inference
             return ("", 0);
         }
 
-        static (string, int) TryMorphologicalLookup(string word, string tag, float? stress, TokenContext context)
+        static async Task<(string, int)> TryMorphologicalLookup(string word, string tag, float? stress, TokenContext context)
         {
             // Try -s suffix (plurals, verb conjugations)
             if (word.Length > 2 && word.EndsWith('s') && !word.EndsWith("ss"))
@@ -582,7 +667,7 @@ namespace RoleBot.TTS.Inference
                 var stem = word.Substring(0, word.Length - 1);
                 if (IsKnown(stem))
                 {
-                    var (stemPhonemes, rating) = LookupWord(stem, tag, stress, context);
+                    var (stemPhonemes, rating) = await LookupWord(stem, tag, stress, context);
                     if (!string.IsNullOrEmpty(stemPhonemes))
                     {
                         return (ApplySSuffix(stemPhonemes), rating);
@@ -596,7 +681,7 @@ namespace RoleBot.TTS.Inference
                 var stem = word.Substring(0, word.Length - 2);
                 if (IsKnown(stem))
                 {
-                    var (stemPhonemes, rating) = LookupWord(stem, tag, stress, context);
+                    var (stemPhonemes, rating) = await LookupWord(stem, tag, stress, context);
                     if (!string.IsNullOrEmpty(stemPhonemes))
                     {
                         return (ApplyEdSuffix(stemPhonemes), rating);
@@ -610,7 +695,7 @@ namespace RoleBot.TTS.Inference
                 var stem = word.Substring(0, word.Length - 3);
                 if (IsKnown(stem))
                 {
-                    var (stemPhonemes, rating) = LookupWord(stem, tag, 0.5f, context);
+                    var (stemPhonemes, rating) = await LookupWord(stem, tag, 0.5f, context);
                     if (!string.IsNullOrEmpty(stemPhonemes))
                     {
                         return (ApplyIngSuffix(stemPhonemes), rating);

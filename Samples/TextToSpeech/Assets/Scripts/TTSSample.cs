@@ -5,7 +5,7 @@ using TMPro;
 using RoleBot.TTS.Utils;
 using System.Linq;
 
-namespace RoleBot.TTS.Demos
+namespace RoleBot.TTS.Samples
 {
     public class TTSSample : MonoBehaviour
     {

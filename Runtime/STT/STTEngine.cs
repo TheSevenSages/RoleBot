@@ -11,6 +11,7 @@ using System.Linq;
 using UnityEngine.Events;
 using Unity.Mathematics;
 using System;
+using System.Text.RegularExpressions;
 
 namespace RoleBot.STT
 {
@@ -21,6 +22,8 @@ namespace RoleBot.STT
 
         [Header("Inference")]
         public BackendType backendType = BackendType.CPU;
+        [Tooltip("If true the STTEngine will filter tags (coughing, blank_audio, etc...) from the output.")]
+        [SerializeField] bool filterTags = true;
 
         [Header("Voice Activity Detection")]
         [Tooltip("If true the STTEngine will automatically filter the audio that gets sent to inference based on if speech is detected or not.")]
@@ -31,11 +34,11 @@ namespace RoleBot.STT
         public float speechBufferTime = 3.0f;
 
         [Header("Audio")]
-        [SerializeField] private AudioSource Echo;
+        [SerializeField] AudioSource echo;
 
-        [Header("Events")]
-        public UnityEvent<string> onTranscriptionUpdated;
-        public UnityEvent<string> onTranscriptionCompleted;
+        private UnityEvent onSpeechDetected = new UnityEvent();
+        private UnityEvent<string> onTranscriptionUpdated = new UnityEvent<string>();
+        private UnityEvent<string> onTranscriptionCompleted = new UnityEvent<string>();
 
         private Queue<float[]> sampleQueue = new Queue<float[]>();
         private float lastSpeechTime = math.INFINITY;
@@ -58,7 +61,7 @@ namespace RoleBot.STT
         /// <param name="sampleRate">Optional, the sample rate to record the mic output at.</param>
         public void MicOn(int micIndex = 0, int sampleRate = 16000)
         {
-            // Ensure that whisper and the serializer are availble when needed, even if STTEngine hasn't had a chance to "Awake" yet.
+            // Ensure that whisper and the serializer are available when needed, even if STTEngine hasn't had a chance to "Awake" yet.
             LazyLoad();
             serializer.StartMicrophoneCapture(ProcessMicChunk, micIndex, sampleRate);
         }
@@ -70,7 +73,37 @@ namespace RoleBot.STT
         {
             serializer.EndMicrophoneCapture();
             state = ENGINE_STATES.FINALIZING;
-        }
+        } 
+
+        // ----------
+        // Events
+        // ----------
+
+        /// <summary>
+        /// Invokes the given action when speech is detected in the microphone input.
+        /// NOTE: Action is invoked even when VAD is disabled.
+        /// </summary>
+        public void OnSpeechDetected(UnityAction action) { onSpeechDetected.AddListener(action); }
+        /// <summary>
+        /// Stops the given action from being invoked when speech is detected in the microphone input.
+        /// </summary>
+        public void RemoveOnSpeechDetected(UnityAction action) { onSpeechDetected.AddListener(action); }
+        /// <summary>
+        /// Invokes the given action whenever a transcription is updated.
+        /// </summary>
+        public void OnTranscriptionUpdated(UnityAction<string> action) { onTranscriptionUpdated.AddListener(action); }
+        /// <summary>
+        /// Stops the given action from listening to when transcriptions are updated.
+        /// </summary>
+        public void RemoveOnTranscriptionUpdated(UnityAction<string> action) { onTranscriptionUpdated.RemoveListener(action); }
+        /// <summary>
+        /// Invokes the given action whenever a transcription is completed.
+        /// </summary>
+        public void OnTranscriptionCompleted(UnityAction<string> action) { onTranscriptionCompleted.AddListener(action); }
+        /// <summary>
+        /// Stops the given action from listening to when transcriptions are completed.
+        /// </summary>
+        public void RemoveOnTranscriptionCompleted(UnityAction<string> action) { onTranscriptionCompleted.RemoveListener(action); }
 
         /// <summary>
         /// Loads whisper and the serializer.
@@ -95,6 +128,9 @@ namespace RoleBot.STT
                 Debug.LogError("[RoleBot][STT] STTEngine: Clips transcribed exceeds expected.");
 
             outputString += s;
+
+            if (filterTags)
+                outputString = Regex.Replace(outputString, @"\s{0,}[[,{,(]\S+[],},)]\s{0,}", "");
 
             if (state == ENGINE_STATES.FINALIZING && numClipsBeingTranscribed == 0)
                 CompleteTranscription();
@@ -121,12 +157,16 @@ namespace RoleBot.STT
         {
             if (!useVAD)
             {
+                if (IsVoiceActive(samples, VADThreshold))
+                    onSpeechDetected.Invoke();
+
                 SendSamplesForTranscription(UpdateTranscription, samples, true);
             }
             else
             {
                 if (IsVoiceActive(samples, VADThreshold))
                 {
+                    onSpeechDetected.Invoke();
                     lock (sampleQueue) { sampleQueue.Enqueue(samples); }
                     lastSpeechTime = Time.time;
                 }
@@ -150,11 +190,11 @@ namespace RoleBot.STT
 
                             float[] allSamplesArr = allSamples.ToArray();
 
-                            if (Echo != null)
+                            if (echo != null)
                             {
-                                Echo.clip = AudioClip.Create("Echo", allSamplesArr.Length, 1, 16000, false);
-                                Echo.clip.SetData(allSamplesArr, 0);
-                                Echo.Play();
+                                echo.clip = AudioClip.Create("Echo", allSamplesArr.Length, 1, 16000, false);
+                                echo.clip.SetData(allSamplesArr, 0);
+                                echo.Play();
                             }
 
                             SendSamplesForTranscription(UpdateTranscription, allSamplesArr, true);

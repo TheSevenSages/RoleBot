@@ -27,6 +27,14 @@ Quantization: [link](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX)
 License Type: Apache 2.0
 License: [link](https://huggingface.co/datasets/choosealicense/licenses/blob/main/markdown/apache-2.0.md)
 
+### OpenPhonemizer
+
+Developer: NeuralVox
+Origin: [link](https://github.com/NeuralVox/OpenPhonemizer/tree/main)
+Quantization: [link](https://huggingface.co/lookbe/open-phonemizer-onnx)
+License Type: BSD-3-Cause-Clear
+License: [link](https://choosealicense.com/licenses/bsd-3-clause-clear/)
+
 ### Whisper-Tiny
 
 Developer: OpenAI

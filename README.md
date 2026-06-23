@@ -21,9 +21,14 @@ Before you get started you'll need to download some extra resources.
 - It is recommended to download all of the AI models and at least one voice for text-to-speech.
 
 ------
-### License
-RoleBot is distributed with the MIT License([LICENSE.md](LICENSE.md)) and uses third-party software/models with MIT and Apache licenses.
+### Known Limitations
+- RoleBot is currently only verified for *English*, other languages will likely run into trouble with the current STT and TTS engines.
+- The TTS tokenizer does not recognize dates formatted in shorthand (DD/MM/YYYY), you need to write them out instead (ex. October 7th, 2026).
 
-Some models that may be downloaded with LLM for Unity define their own license terms, please review them before using each model.
+------
+### License
+RoleBot is distributed with the MIT License([LICENSE.md](LICENSE.md)) and uses third-party software/models with other permissive licenses.
 
 Third-party licenses can be found in the ([Third Party Notices.md](<Third Party Notices.md>)).
+
+Some models that may be downloaded with LLM for Unity define their own license terms, please review them before using each model.

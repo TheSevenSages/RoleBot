@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6454399742792815110}
   - component: {fileID: 2741435734651781430}
   - component: {fileID: 7977994202084761927}
-  - component: {fileID: 6474098000918611240}
   m_Layer: 0
   m_Name: ChatEngine
   m_TagString: Untagged
@@ -46,6 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 627e2719f2a4efd41bdbdace231997aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoleBot.Chat.ChatEngine
+  warmupLLM: 1
+  systemPrompt: 
 --- !u!114 &7977994202084761927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79,47 +80,3 @@ MonoBehaviour:
   _embeddingLength: 2048
   minContextLength: 0
   maxContextLength: 262144
---- !u!114 &6474098000918611240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3278907353746137113}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4326d5ae3b03ff55847035351559f4e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: undream.llmunity.Runtime::LLMUnity.LLMAgent
-  advancedOptions: 0
-  _remote: 0
-  _llm: {fileID: 7977994202084761927}
-  _APIKey: 
-  _host: localhost
-  _port: 13333
-  numRetries: 5
-  _grammar: 
-  numPredict: -1
-  cachePrompt: 1
-  seed: 0
-  temperature: 0.2
-  topK: 40
-  topP: 0.9
-  minP: 0.05
-  repeatPenalty: 1.1
-  presencePenalty: 0
-  frequencyPenalty: 0
-  typicalP: 1
-  repeatLastN: 64
-  mirostat: 0
-  mirostatTau: 5
-  mirostatEta: 0.1
-  nProbs: 0
-  ignoreEos: 0
-  save: 
-  debugPrompt: 0
-  overflowStrategy: 1
-  overflowTargetRatio: 0.5
-  overflowSummarizePrompt: 
-  _slot: -1
-  _systemPrompt: A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.

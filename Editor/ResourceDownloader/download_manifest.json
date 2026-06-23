@@ -1,5 +1,5 @@
 {
-  "_README": "Catalog of resources the RoleBot download window can fetch. A resource's download URL is (its source's baseUrl + url); set 'source' on a resource to pick which named base to use, or give it an absolute http(s) 'url' to ignore the base entirely. 'baseUrl' below is the default used when 'source' is empty/unknown. 'destination' is relative to the package Resources folder, so it is loadable with Resources.Load(...).",
+  "_README": "Catalog of resources the RoleBot download window can fetch. A resource's download URL is (its source's baseUrl + url); set 'source' on a resource to pick which named base to use, or give it an absolute http(s) 'url' to ignore the base entirely. 'destination' is relative to the project's Resources folder, so it is loadable with Resources.Load(...).",
   "sources": [
     { "key": "whisper", "baseUrl": "https://huggingface.co/unity/inference-engine-whisper-tiny/resolve/main" },
     { "key": "kokoro", "baseUrl": "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main" },
@@ -13,6 +13,7 @@
     { "id": "stt_vocab", "displayName": "Whisper Vocabulary", "category": "Speech-to-Text (Whisper)", "source": "whisper", "url": "data/vocab.json", "destination": "data/STT/Whisper-Tiny/vocab.json", "sizeBytes": 0, "sha256": "" },
 
     { "id": "tts_kokoro", "displayName": "Kokoro TTS Model", "category": "Text-to-Speech (Kokoro)", "source": "kokoro", "url": "onnx/model.onnx", "destination": "models/TTS/Kokoro-82M/kokoro.onnx", "sizeBytes": 0, "sha256": "" },
+    { "id": "tts_openphonemizer", "displayName": "OpenPhonemizer G2P Model", "category": "Text-to-Speech (Kokoro)", "source": "", "url": "https://huggingface.co/lookbe/open-phonemizer-onnx/resolve/main/model.onnx", "destination": "models/TTS/OpenPhonemizer/G2P.onnx", "sizeBytes": 0, "sha256": "" },
 
     { "id": "voice_af", "displayName": "af", "category": "Voices (Kokoro)", "source": "voices", "url": "voices/af.bin", "destination": "voices/af.bin", "sizeBytes": 0, "sha256": "" },
     { "id": "voice_af_alloy", "displayName": "af_alloy", "category": "Voices (Kokoro)", "source": "voices", "url": "voices/af_alloy.bin", "destination": "voices/af_alloy.bin", "sizeBytes": 0, "sha256": "" },

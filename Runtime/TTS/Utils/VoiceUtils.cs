@@ -23,14 +23,12 @@ namespace RoleBot.TTS.Utils
             // Fill voices list
             try
             {
-                // TextAsset vl = Resources.Load<TextAsset>("voices_list");
                 var allVoices = Resources.LoadAll<RawBytesAsset>(VOICE_PATH);
                 foreach (var v in allVoices)
                 {
                     voicesList[v.name] = VOICE_PATH + '/' + v.name;
                     Resources.UnloadAsset(v);
                 }
-                // voicesList = JsonConvert.DeserializeObject<Dictionary<string, string>>(vl.text);
             }
             catch(Exception ex)
             {
