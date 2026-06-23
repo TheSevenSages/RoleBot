@@ -18,7 +18,6 @@ namespace RoleBot.TTS
         [Header("Inference")]
         public BackendType backendType;
         private KokoroHandler kokoro = null;
-        // Serializes speech requests so they can play gaplessly
 
         [Header("Audio Settings")]
         [Tooltip("The percent of the auto-generated silence buffer to trim")]
@@ -123,6 +122,14 @@ namespace RoleBot.TTS
                 }
                 data[i] = currentSamples[currentSamplePos++];
             }
+        }
+
+        /// <summary>
+        /// Clears all of the upcoming audio samples.
+        /// </summary>
+        public void ClearAudio()
+        {
+            sampleQueue.Clear();
         }
 
         /// <returns>All of the valid voice names</returns>

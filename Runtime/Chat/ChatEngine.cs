@@ -95,21 +95,56 @@ namespace RoleBot.Chat
         /// <param name="completionCallback">Optional callback when response is complete</param>
         /// <param name="addToHistory">Whether to add the exchange to conversation history</param>
         /// <returns>Task that returns the AI assistant's response, null if failed.</returns>
-            public async Task<string> Chat(string message, Action<string> partialCallback = null, 
-            Action completionCallback = null, bool addToHistory = true)
-            {
+        public async Task<string> Chat(string message, Action<string> partialCallback = null, 
+        Action completionCallback = null, bool addToHistory = true)
+        {
     #if LLMUNITY_PRESENT
-                if (!warmedUp)
-                {
-                    completionCallback?.Invoke();
-                    Debug.LogWarning($"[RoleBot][Chat] LLM is not warmed up yet, dropping message {message}");
-                    return await Task.FromResult<string>(null);
-                }
-                return await agent.Chat(message, partialCallback, completionCallback, addToHistory);
-    #else
-                Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+            if (!warmedUp)
+            {
+                completionCallback?.Invoke();
+                Debug.LogWarning($"[RoleBot][Chat] LLM is not warmed up yet, dropping message {message}");
                 return await Task.FromResult<string>(null);
-    #endif
             }
+            return await agent.Chat(message, partialCallback, completionCallback, addToHistory);
+    #else
+            Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+            return await Task.FromResult<string>(null);
+    #endif
+        }
+
+        /// <summary>
+        /// Adds a message to the chat history.
+        /// </summary>
+        /// <param name="fromAI">True if the message is from the AI, false if the user.</param>
+        /// <param name="message">The message to add to the chat history.</param>
+        public void AddMessageToChatHistory(bool fromAI, string message)
+        {
+    #if LLMUNITY_PRESENT
+            if (agent == null)
+                return;
+
+            if (fromAI)
+                agent.AddAssistantMessage(message);
+            else
+                agent.AddUserMessage(message);
+    #else
+            Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+    #endif
+        }
+
+        /// <summary>
+        /// Cancels any active responses.
+        /// </summary>
+        public void CancelCurrentResponse()
+        {
+    #if LLMUNITY_PRESENT
+            if (agent == null)
+                return;
+            
+            agent.CancelRequests();
+    #else
+            Debug.LogError("[RoleBot][Chat] The LLMUnity package is required for ChatEngine. Please install with Git using the package manager and this url: https://github.com/undreamai/LLMUnity.git");
+    #endif
+        }
     }
 }

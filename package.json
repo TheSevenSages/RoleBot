@@ -1,7 +1,7 @@
 {
   "name": "com.thesevensages.rolebot",
   "displayName": "RoleBot",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "unity": "6000.6",
   "unityRelease": "0a5",
   "description": "RoleBot enables users to easily add FULLY LOCAL AI chatbots, with automatic speech detection and voice synthesis, to projects. It's easy to set up and will compile to most Unity build targets.",
@@ -36,6 +36,11 @@
       "displayName": "Speaking Chatbot",
       "description": "Combines STT, Chat, and TTS Engines to create an AI you can speak to and it'll speak back!",
       "path": "Samples/SpeakingBot"
+    },
+    {
+      "displayName": "RoleBot Triggers",
+      "description": "Provides samples for triggers. Triggers are tools that can modify the behavior of RoleBot during runtime.",
+      "path": "Samples/Triggers"
     }
   ],
   "documentationUrl": "https://github.com/TheSevenSages/RoleBot/blob/843ab8449bd6672e92be42699b63d77bbbd24443/Documentation/RoleBot.md"
