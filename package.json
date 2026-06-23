@@ -2,8 +2,8 @@
   "name": "com.thesevensages.rolebot",
   "displayName": "RoleBot",
   "version": "0.11.0",
-  "unity": "6000.6",
-  "unityRelease": "0a5",
+  "unity": "6000.2",
+  "unityRelease": "10f1",
   "description": "RoleBot enables users to easily add FULLY LOCAL AI chatbots, with automatic speech detection and voice synthesis, to projects. It's easy to set up and will compile to most Unity build targets.",
   "dependencies": {
     "com.unity.test-framework": "1.6.0",
