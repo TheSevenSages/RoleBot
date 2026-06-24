@@ -141,7 +141,11 @@ namespace RoleBot.Chat
         /// <returns>True if ChatEngine is currently processing a response, false otherwise.</returns>
         public bool IsProcessingResponse()
         {
+    #if LLMUNITY_PRESENT
             return ((int)currentResponse.Status) <= 4;
+    #else
+            return false;
+    #endif
         }
 
         /// <summary>
@@ -150,14 +154,14 @@ namespace RoleBot.Chat
         /// </summary>
         public void ExecuteWhenWarmupComplete(UnityAction onCompletion)
         {
-#if LLMUNITY_PRESENT
+    #if LLMUNITY_PRESENT
             if (warmedUp || !warmupLLM)
             {
                 onCompletion.Invoke();
                 return;
             }
             onWarmupComplete.AddListener(onCompletion);
-#endif
+    #endif
         }
 
         /// <summary>
@@ -211,7 +215,8 @@ namespace RoleBot.Chat
             yield return new WaitUntil(() => { return cancelState == CANCEL_STATES.CANCELABLE; });
             cancelState = CANCEL_STATES.CANCELED;
             agent.CancelRequests();
-
+    #else
+            yield return null;
     #endif
         }
     }

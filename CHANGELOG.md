@@ -6,7 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -----
 
-## [0.11.1] - 2026-06-23
+## [0.11.2] - 2026-06-24
+
+#### Fixed
+
+- Compile errors in ChatEngine when LLM for Unity is not present.
+
+-----
+
+## [0.11.1] - 2026-06-24
 
 #### Changed
 
