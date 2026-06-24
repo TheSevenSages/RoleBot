@@ -2,7 +2,7 @@
 <img src="Documentation/images/RoleBotLogo/logo.png" alt="RoleBot" width="300"/> <br>
 <h2>Bring your characters to life, locally!</h2>
 
-RoleBot is a fully local, all-in-one package for developers who want to add AI characters into their Unity projects, without the monthly costs or privacy concerns of traditional cloud-based solutions. It leverages [Unity Sentis](https://docs.unity3d.com/Packages/com.unity.ai.inference@2.6/manual/index.html) and [LLM for Unity](https://github.com/undreamai/LLMUnity) to bring characters to life with local speech detection/transcription, chatbot, and speech sythesis capabilites!
+RoleBot is a fully local, all-in-one package for developers who want to add AI characters into their Unity projects, without the monthly costs or privacy concerns of traditional cloud-based solutions. It leverages [Unity Sentis](https://docs.unity3d.com/Packages/com.unity.ai.inference@2.6/manual/index.html) and [LLM for Unity](https://github.com/undreamai/LLMUnity) to bring characters to life with local speech detection/transcription, chatbot, and speech synthesis capabilities!
 </div>
 
 ------
@@ -19,6 +19,10 @@ RoleBot is a fully local, all-in-one package for developers who want to add AI c
 Before you get started you'll need to download some extra resources.
 - Navigate to `Window > RoleBot > Download Resources`
 - It is recommended to download all of the AI models and at least one voice for text-to-speech.
+
+We also recommend adding the following to your gitignore file to prevent pushing large AI models to your repository:
+`*.onnx` 
+`*.onnx.meta`
 
 ------
 ### Known Limitations

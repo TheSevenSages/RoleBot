@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -----
 
+## [0.11.1] - 2026-06-23
+
+#### Changed
+
+- Confirmed compatability with Unity version 6.2.10f1.
+
+#### Fixed
+
+- Unity Mathmatics reference in RoleBot.TTS assembly. Turns out a direct reference is needed.
+- Fixed crash caused when a response from the LLM was canceled before it has a chance to init.
+- Fixed bug with BotController interrupt, where audio would continue to play even after the interrupt.
+
+-----
+
 ## [0.11.0] - 2026-06-23
 
 ### Triggers and TTS Failsafe.

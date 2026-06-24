@@ -24,23 +24,11 @@ namespace RoleBot.TTS
         [SerializeField] private int trimBuffer = 30;
         [Tooltip("The difference from 0 a sample needs to be to be considered \"silent\" for our buffer trimming")]
         [SerializeField] private float bufferThreshold = 0.01f;
+
         private const int STREAM_SAMPLE_RATE = 24000;
         private Queue<float[]> sampleQueue = new Queue<float[]>();
         private float[] currentSamples;
         private int currentSamplePos;
-
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
-        {
-            var streamClip = AudioClip.Create("AIVoiceStream", STREAM_SAMPLE_RATE * 3600, 1, STREAM_SAMPLE_RATE, true, OnAudioRead);
-            AudioSource audioSource = GetComponent<AudioSource>();
-            audioSource.clip = streamClip;
-            audioSource.loop = true;
-            audioSource.Play();
-
-            kokoro = new KokoroHandler(backendType);
-            OpenPhonemizerHandler.g2p_BackendType = backendType;
-        }
 
         /// <summary>
         /// Converts the given text to audio and plays it through the AudioSource.
@@ -69,6 +57,33 @@ namespace RoleBot.TTS
             (float[] output) => {
                 lock (sampleQueue) { sampleQueue.Enqueue(TrimAudio(output)); }
             });
+        }
+        
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
+            ResetStreamClip();
+
+            kokoro = new KokoroHandler(backendType);
+            OpenPhonemizerHandler.g2p_BackendType = backendType;
+        }
+
+        /// <summary>
+        /// Resets the audioclip used to stream the TTS audio.
+        /// </summary>
+        void ResetStreamClip()
+        {
+            var streamClip = AudioClip.Create("AIVoiceStream", STREAM_SAMPLE_RATE * 3600, 1, STREAM_SAMPLE_RATE, true, OnAudioRead);
+            var audioSource = GetComponent<AudioSource>();
+
+            // Destroy the old clip
+            if (audioSource.clip != null)
+            Destroy(audioSource.clip);
+
+            audioSource.Stop();
+            audioSource.clip = streamClip;
+            audioSource.loop = true;
+            audioSource.Play();
         }
 
         /// <summary>
@@ -129,7 +144,10 @@ namespace RoleBot.TTS
         /// </summary>
         public void ClearAudio()
         {
+            StopAllCoroutines(); // Stop pending _Speak coroutines
             sampleQueue.Clear();
+            kokoro.CancelRequests();
+            ResetStreamClip();
         }
 
         /// <returns>All of the valid voice names</returns>

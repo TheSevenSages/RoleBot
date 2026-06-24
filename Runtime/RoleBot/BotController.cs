@@ -55,7 +55,8 @@ namespace RoleBot
                 if (allowInterrupt)
                 {
                     // Cancel LLM response
-                    chat.CancelCurrentResponse();
+                    if (chat.IsProcessingResponse())
+                        chat.CancelCurrentResponse();
 
                     // Cancel any upcoming speech
                     tts.ClearAudio();
@@ -73,14 +74,21 @@ namespace RoleBot
             tracker.voice = tts.GetVoice(voiceID);
 
             var finalResponse = await chat.Chat(message, response => { OnBotResponseUpdated(tracker, response); });
-            tracker.response = finalResponse;
-            OnBotResponseComplete(tracker);
+            if (finalResponse != null)
+            {
+                tracker.response = finalResponse;
+                OnBotResponseComplete(tracker);
+            }
+
+            chat.AddMessageToChatHistory(false, message);
+            chat.AddMessageToChatHistory(true, tracker.response);
         }
 
         void OnBotResponseUpdated(BotResponseTracker tracker, string response)
         {
             string newOutput = response.Substring(tracker.lastPunctuationIndex);
             tracker.response = response;
+
             int punct = newOutput.IndexOfAny(SPLIT_PUNCT) + 1;
             if (punct > 0)
             {

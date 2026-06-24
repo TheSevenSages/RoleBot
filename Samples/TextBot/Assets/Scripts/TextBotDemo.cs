@@ -11,7 +11,8 @@ namespace RoleBot.Chat.Samples
     {
         public ChatEngine chatEngine;
         public TMP_InputField inputField;
-        public Button button;
+        public Button submitButton;
+        public Button cancelResponse;
         public ScrollRect scrollRect;
         public GameObject ScrollContent;
         public GameObject AIMsgPrefab;
@@ -24,10 +25,11 @@ namespace RoleBot.Chat.Samples
         void Start()
         {
             inputField.onSubmit.AddListener((string s) => { _ = SendChatMessage(s); } );
-            button.onClick.AddListener(() =>
+            submitButton.onClick.AddListener(() =>
             {
                _ = SendChatMessage(inputField.text); 
             });
+            cancelResponse.onClick.AddListener(chatEngine.CancelCurrentResponse);
             chatEngine.ExecuteWhenWarmupComplete(() =>
             {
                 Debug.Log("Warmup Complete!");

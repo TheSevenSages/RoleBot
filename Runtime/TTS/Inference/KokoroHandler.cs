@@ -8,6 +8,7 @@ using UnityEngine.Assertions;
 using System.Threading.Tasks;
 using RoleBot.TTS.Utils;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace RoleBot.TTS.Inference
 {
@@ -23,6 +24,7 @@ namespace RoleBot.TTS.Inference
 
         private Queue<(Tensor<int> inputIds, Tensor<float> speed, Tensor<float> voice, Action<float[]> cb)> speechRequestQueue = new Queue<(Tensor<int> inputIds, Tensor<float> speed, Tensor<float> voice, Action<float[]> cb)>();
         private bool processingRequest = false;
+        private CancellationTokenSource cancellationSource = new CancellationTokenSource();
         
         public KokoroHandler(BackendType backendType)
         {
@@ -40,10 +42,16 @@ namespace RoleBot.TTS.Inference
         Task tokenizing = Task.CompletedTask;
         public async Task GenerateSpeech(string text, float speed, Voice voice, Action<float[]> callback)
         {
+            var ct = cancellationSource.Token;
             // Strictly enforce tokenization order because some text tokenizes much faster than others.
             Task<int[]> myTokenize = TokenizeInOrder(text);
             tokenizing = myTokenize;
             var inputIds = await myTokenize;
+            if (inputIds.Length == 0)
+                return;
+
+            try { ct.ThrowIfCancellationRequested(); }
+            catch { return; }
 
             // Add the pad ids
             var paddedInputIds = new int[inputIds.Length + 2];
@@ -70,18 +78,43 @@ namespace RoleBot.TTS.Inference
                     using Tensor<float> result = m_Worker.PeekOutput() as Tensor<float>;
                     using Tensor<float> output = await result.ReadbackAndCloneAsync();
 
+                    request.inputIds?.Dispose();
+                    request.voice?.Dispose();
+                    request.speed?.Dispose();
+                    
+                    try { ct.ThrowIfCancellationRequested(); }
+                    catch { break; }
+
                     using Tensor<float> processedOutput = KokoroOutputProcessor.Apply2NotchFiltering(output);
 
                     // Save the output
                     var arr = processedOutput.DownloadToArray();
                     request.cb?.Invoke(arr);
-
-                    request.inputIds?.Dispose();
-                    request.voice?.Dispose();
-                    request.speed?.Dispose();
                 }
                 processingRequest = false;
             }
+        }
+
+        /// <summary>
+        /// Cancels all currently unfinished speech requests.
+        /// </summary>
+        public void CancelRequests()
+        {
+            while (speechRequestQueue.Count > 0)
+            {
+                var request = speechRequestQueue.Dequeue();
+
+                request.inputIds?.Dispose();
+                request.voice?.Dispose();
+                request.speed?.Dispose();
+            }
+
+            cancellationSource.Cancel();
+
+            cancellationSource.Dispose();
+            cancellationSource = new CancellationTokenSource();
+            
+            tokenizing = Task.CompletedTask;
         }
 
         private async Task<int[]> TokenizeInOrder(string text)
@@ -115,6 +148,8 @@ namespace RoleBot.TTS.Inference
             }
 
             voiceUtils?.Dispose();
+
+            cancellationSource?.Dispose();
         }
     }   
 }
