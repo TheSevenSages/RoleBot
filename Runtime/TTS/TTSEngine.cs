@@ -9,10 +9,10 @@ using RoleBot.TTS.Utils;
 using Unity.InferenceEngine;
 using System;
 using UnityEditor.EditorTools;
+using System.Threading.Tasks;
 
 namespace RoleBot.TTS
 {
-    [RequireComponent(typeof(AudioSource))]
     public class TTSEngine : MonoBehaviour
     {
         [Header("Inference")]
@@ -20,6 +20,8 @@ namespace RoleBot.TTS
         private KokoroHandler kokoro = null;
 
         [Header("Audio Settings")]
+        [Tooltip("The AudioSource that generated speech should be playing from")]
+        [SerializeField] private AudioSource streamingAudioSource = null;
         [Tooltip("The percent of the auto-generated silence buffer to trim")]
         [SerializeField] private int trimBuffer = 30;
         [Tooltip("The difference from 0 a sample needs to be to be considered \"silent\" for our buffer trimming")]
@@ -31,14 +33,18 @@ namespace RoleBot.TTS
         private int currentSamplePos;
 
         /// <summary>
-        /// Converts the given text to audio and plays it through the AudioSource.
+        /// Converts the given text to audio and streams it through the streaming AudioSource.
         /// </summary>
         /// <param name="text">The text to be converted</param>
         /// <param name="voice">Determines the kind of voice used</param>
         /// <param name="speed">How fast the TTS should be speaking (1.0 by default)</param>
         public void Speak(string text, Voice voice, float speed = 1.0f)
         {
-
+            if (streamingAudioSource == null)
+            {
+                Debug.LogError("[RoleBot][TTS] To use TTSEngine.Speak you must set the streaming AudioSource.");
+                return;
+            }
             StartCoroutine(_Speak(text, speed, voice));
         }
         private IEnumerator _Speak(string text, float speed, Voice voice)
@@ -58,6 +64,29 @@ namespace RoleBot.TTS
                 lock (sampleQueue) { sampleQueue.Enqueue(TrimAudio(output)); }
             });
         }
+
+        /// <summary>
+        /// Converts the given text to audio.
+        /// </summary>
+        /// <param name="text">The text to be converted</param>
+        /// <param name="voice">Determines the kind of voice used</param>
+        /// <param name="speed">How fast the TTS should be speaking (1.0 by default)</param>
+        /// <returns>An AudioClip containing the text</returns>
+        public async Task<AudioClip> GenerateAudioClip(string text, Voice voice, float speed = 1.0f)
+        {
+            if (kokoro == null)
+                return null;
+
+            List<float> samples = new List<float>();
+            await kokoro.GenerateSpeech(text, speed, voice,
+            (float[] output) =>
+            {
+                samples.AddRange(output);
+            });
+            var clip = AudioClip.Create("NewClip", samples.Count, 1, STREAM_SAMPLE_RATE, false);
+            clip.SetData(samples.ToArray(), 0);
+            return clip;
+        }
         
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
@@ -73,8 +102,11 @@ namespace RoleBot.TTS
         /// </summary>
         void ResetStreamClip()
         {
+            if (streamingAudioSource == null)
+                return;
+
             var streamClip = AudioClip.Create("AIVoiceStream", STREAM_SAMPLE_RATE * 3600, 1, STREAM_SAMPLE_RATE, true, OnAudioRead);
-            var audioSource = GetComponent<AudioSource>();
+            var audioSource = streamingAudioSource;
 
             // Destroy the old clip
             if (audioSource.clip != null)
@@ -84,6 +116,26 @@ namespace RoleBot.TTS
             audioSource.clip = streamClip;
             audioSource.loop = true;
             audioSource.Play();
+        }
+
+        /// <summary>
+        /// Sets the AudioSource for audio streamed from this engine to play out of.
+        /// </summary>
+        public void SetStreamingAudioSource(AudioSource audioSource)
+        {
+            if (streamingAudioSource != null)
+            {
+                audioSource.clip = streamingAudioSource.clip;
+                streamingAudioSource.Stop();
+                audioSource.loop = true;
+                audioSource.Play();
+                streamingAudioSource = audioSource;
+            }
+            else
+            {
+                streamingAudioSource = audioSource;
+                ResetStreamClip();
+            }
         }
 
         /// <summary>

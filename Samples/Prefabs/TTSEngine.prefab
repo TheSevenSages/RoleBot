@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoleBot.TTS.TTSEngine
   backendType: 512
-  model: {fileID: 5022602860645237092, guid: 63f6d8aa90d37354b938872c3522c44a, type: 3}
+  streamingAudioSource: {fileID: 6994496631671692736}
   trimBuffer: 100
   bufferThreshold: 0.15
 --- !u!82 &6994496631671692736

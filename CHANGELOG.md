@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -----
 
+## [0.12.0] - 2026-06-26
+
+### TTS Tools
+
+#### Changed
+
+- Modify TTSEngine so users may change the AudioSource to stream generated audio to use.
+- Add a function to TTSEngine that just returns the generated audio as an Audioclip and does not play it in any source.
+- TTS sample scene now allows switching between streaming audio and generating audioclips.
+
+-----
+
 ## [0.11.2] - 2026-06-24
 
 #### Fixed
